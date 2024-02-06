@@ -13,11 +13,11 @@ namespace LibrarySystem.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            modelBuilder.Entity<Order>().Property(m => m.RestorationId).IsRequired(false);
-            base.OnModelCreating(modelBuilder);
+           /* modelBuilder.Entity<Order>().Property(m => m.RestorationId).IsRequired(false);
+            base.OnModelCreating(modelBuilder); */
 
 
-            modelBuilder.Entity<Book>()
+           /* modelBuilder.Entity<Book>()
                 .HasMany(o => o.Orders)
                 .WithMany(m => m.Books)
                 .UsingEntity<Item>(
@@ -32,11 +32,25 @@ namespace LibrarySystem.Models
                 i =>
                 {
                     i.HasKey(t => new { t.OrderId, t.BookId });
-
-
                 }
+                ); */
 
-                );
+
+
+         /*  modelBuilder.Entity<Item>()
+                .HasOne(or => or.Order)
+                .WithMany(it => it.Items)
+                .HasForeignKey(or => or.OrderId);
+
+            modelBuilder.Entity<Item>()
+               .HasOne(m => m.Book)
+                .WithMany(it => it.Items)
+                .HasForeignKey(or => or.BookId);
+
+                 modelBuilder.Entity<Item>().HasKey(t => new { t.OrderId, t.BookId }); */
+
+
+
 
         }
 

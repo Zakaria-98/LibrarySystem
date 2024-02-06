@@ -12,7 +12,7 @@
 
         public Category Category { get; set; }
 
-        public ICollection<Order> Orders { get; set; }
+      //  public ICollection<Order> Orders { get; set; }
 
         public List<Item> Items { get; set; }
     }

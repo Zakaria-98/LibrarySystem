@@ -14,8 +14,7 @@ namespace LibrarySystem.Models
 
         public Member   Member { get; set; }
 
-        public ICollection<Book> Books { get; set; }
-
+       // public ICollection<Book> Books { get; set; }
         public List <Item> Items { get; set; }
 
         

@@ -47,7 +47,7 @@ namespace LibrarySystem.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("LibrarySystem.Models.Category", b =>
@@ -64,7 +64,7 @@ namespace LibrarySystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("LibrarySystem.Models.Item", b =>
@@ -82,7 +82,7 @@ namespace LibrarySystem.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.ToTable("Items");
+                    b.ToTable("Items", (string)null);
                 });
 
             modelBuilder.Entity("LibrarySystem.Models.Member", b =>
@@ -99,7 +99,7 @@ namespace LibrarySystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Members");
+                    b.ToTable("Members", (string)null);
                 });
 
             modelBuilder.Entity("LibrarySystem.Models.Order", b =>
@@ -128,7 +128,7 @@ namespace LibrarySystem.Migrations
 
                     b.HasIndex("RestorationId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("LibrarySystem.Models.Restoration", b =>
@@ -144,7 +144,7 @@ namespace LibrarySystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Restorations");
+                    b.ToTable("Restorations", (string)null);
                 });
 
             modelBuilder.Entity("LibrarySystem.Models.Book", b =>
