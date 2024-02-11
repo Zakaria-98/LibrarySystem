@@ -5,19 +5,19 @@ namespace LibrarySystem.Services
 {
     public interface IOrdersService
     {
-        Task<IEnumerable<OrdersListDto>> GetAllOrders();
+        Task<IEnumerable<DisplayOutput>> GetAllOrders();
 
-        Task<Order> GetOrdersByOrderId(int Orderid);
+        Task<DisplayOutput> GetOrdersByOrderId(int Orderid);
 
-        Task<IEnumerable<OrdersListDto>> GetOrderslate();
+        Task<IEnumerable<DisplayOutput>> GetOrderslate();
 
-        Task<IEnumerable<OrdersListDto>> GetOrdersbyOrderDateFilter(DateTime date1, DateTime date2);
+        Task<IEnumerable<DisplayOutput>> GetOrdersbyOrderDateFilter(DateTime date1, DateTime date2);
 
-        Task<IEnumerable<OrdersListDto>> GetOrdersbyRestorationDateFilter(DateTime date1, DateTime date2);
+        Task<IEnumerable<DisplayOutput>> GetOrdersbyRestorationDateFilter(DateTime date1, DateTime date2);
 
-        Task<IEnumerable<OrdersListDto>> GetOrdersByMemberId( int MemberId);
+        Task<IEnumerable<DisplayOutput>> GetOrdersByMemberId( int MemberId);
 
-        Task<IEnumerable<OrdersListDto>> GetOrdersByBookId(int BookId);
+        Task<IEnumerable<DisplayOutput>> GetOrdersByBookId(int BookId);
         Task<bool> AddOrder(OrderDto dto, List<ItemsDto> dto2);
 
         Task<bool> UpdateOrder(int id, EditOrderDto dto, List<ItemsDto> dto2);

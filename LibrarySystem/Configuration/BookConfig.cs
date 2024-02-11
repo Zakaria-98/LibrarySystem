@@ -13,9 +13,25 @@ namespace LibrarySystem.Configuration
 
             builder.Property(p => p.CategoryId).IsRequired();
 
-           
+            builder
+                 .HasMany(o => o.Orders)
+                 .WithMany(m => m.Books)
+                 .UsingEntity<Item>(
+                 i => i
+                 .HasOne(or => or.Order)
+                 .WithMany(it => it.Items)
+                 .HasForeignKey(or => or.OrderId),
+                 i => i
+                 .HasOne(m => m.Book)
+                 .WithMany(it => it.Items)
+                 .HasForeignKey(or => or.BookId),
+                 i =>
+                 {
+                     i.HasKey(t => new { t.OrderId, t.BookId });
+                 }
+                 );
 
-            
+
         }
     }
 }

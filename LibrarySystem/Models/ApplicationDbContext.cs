@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LibrarySystem.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibrarySystem.Models
 {
@@ -13,48 +14,52 @@ namespace LibrarySystem.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-           /* modelBuilder.Entity<Order>().Property(m => m.RestorationId).IsRequired(false);
-            base.OnModelCreating(modelBuilder); */
+            new BookConfig().Configure(modelBuilder.Entity<Book>());
+            new CategoryConfig().Configure(modelBuilder.Entity<Category>());
+            new ItemConfig().Configure(modelBuilder.Entity<Item>());
+            new OrderConfig().Configure(modelBuilder.Entity<Order>());
+            new RestorationConfig().Configure(modelBuilder.Entity<Restoration>());
 
 
-           /* modelBuilder.Entity<Book>()
-                .HasMany(o => o.Orders)
-                .WithMany(m => m.Books)
-                .UsingEntity<Item>(
-                i => i
-                .HasOne(or => or.Order)
-                .WithMany(it => it.Items)
-                .HasForeignKey(or => or.OrderId),
-                i => i
-                .HasOne(m => m.Book)
-                .WithMany(it => it.Items)
-                .HasForeignKey(or => or.BookId),
-                i =>
-                {
-                    i.HasKey(t => new { t.OrderId, t.BookId });
-                }
-                ); */
+            /* modelBuilder.Entity<Order>().Property(m => m.RestorationId).IsRequired(false);
+             base.OnModelCreating(modelBuilder); */
 
 
-
-         /*  modelBuilder.Entity<Item>()
-                .HasOne(or => or.Order)
-                .WithMany(it => it.Items)
-                .HasForeignKey(or => or.OrderId);
-
-            modelBuilder.Entity<Item>()
-               .HasOne(m => m.Book)
-                .WithMany(it => it.Items)
-                .HasForeignKey(or => or.BookId);
-
-                 modelBuilder.Entity<Item>().HasKey(t => new { t.OrderId, t.BookId }); */
+            /* modelBuilder.Entity<Book>()
+                 .HasMany(o => o.Orders)
+                 .WithMany(m => m.Books)
+                 .UsingEntity<Item>(
+                 i => i
+                 .HasOne(or => or.Order)
+                 .WithMany(it => it.Items)
+                 .HasForeignKey(or => or.OrderId),
+                 i => i
+                 .HasOne(m => m.Book)
+                 .WithMany(it => it.Items)
+                 .HasForeignKey(or => or.BookId),
+                 i =>
+                 {
+                     i.HasKey(t => new { t.OrderId, t.BookId });
+                 }
+                 ); */
 
 
 
+            /*  modelBuilder.Entity<Item>()
+                   .HasOne(or => or.Order)
+                   .WithMany(it => it.Items)
+                   .HasForeignKey(or => or.OrderId);
+
+               modelBuilder.Entity<Item>()
+                  .HasOne(m => m.Book)
+                   .WithMany(it => it.Items)
+                   .HasForeignKey(or => or.BookId);
+
+                    modelBuilder.Entity<Item>().HasKey(t => new { t.OrderId, t.BookId }); */
 
         }
 
-      public  DbSet<Member> Members { get; set; }
+        public  DbSet<Member> Members { get; set; }
       public  DbSet<Book> Books { get; set; }
 
         public DbSet<Order> Orders { get; set; }

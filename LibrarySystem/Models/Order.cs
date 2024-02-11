@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LibrarySystem.Dto;
+using System.ComponentModel.DataAnnotations;
 
 namespace LibrarySystem.Models
 {
@@ -14,7 +15,7 @@ namespace LibrarySystem.Models
 
         public Member   Member { get; set; }
 
-       // public ICollection<Book> Books { get; set; }
+        public ICollection<Book> Books { get; set; }
         public List <Item> Items { get; set; }
 
         
@@ -22,6 +23,9 @@ namespace LibrarySystem.Models
 
         public Restoration Restoration { get; set; }
 
-
+        internal Task Select(OrdersOutputDto ordersOutputDto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -14,17 +14,7 @@ namespace LibrarySystem.Configuration
             builder.Property(p => p.BookQuantity).IsRequired();
 
 
-            builder.HasKey(t => new { t.OrderId, t.BookId });
 
-
-            builder.HasOne(or => or.Order)
-                            .WithMany(it => it.Items)
-                            .HasForeignKey(or => or.OrderId);
-
-            builder
-               .HasOne(m => m.Book)
-                .WithMany(it => it.Items)
-                .HasForeignKey(or => or.BookId);
 
 
 

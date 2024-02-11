@@ -12,212 +12,188 @@ namespace LibrarySystem.Services
         {
             _context = context;
         }
-        public async Task<IEnumerable<OrdersListDto>> GetAllOrders()
+        public async Task<IEnumerable<DisplayOutput>> GetAllOrders()
         {
+
             var orders = await _context.Orders
-                .Join(
-                _context.Items,
-                order => order.Id,
-                Item => Item.OrderId,
-                (order, Item) => new OrdersOutputDto
+                .Select(o => new DisplayOutput
                 {
-                    Id = order.Id,
-                    MemberId = order.MemberId,
-                    MemberName = order.Member.Name,
-                    OrderDate = order.OrderDate,
-                    RestorationBeforeDate = order.RestorationDate,
-                    BookId = Item.BookId,
-                    BookTitle = Item.Book.Title,
-                    BookQuantity = Item.BookQuantity,
-                    RestorationDate = order.Restoration.RestorationDate
-
-
-
-                }
-                ).GroupBy(o => o.Id)
-                .Select(g => new OrdersListDto
-                {
-                    Orders = g.ToList(),
-
-
-
+                    Id = o.Id,
+                    MemberId = o.MemberId,
+                    MemberName = o.Member.Name,
+                    OrderDate = o.OrderDate,
+                    RestorationBeforeDate = o.RestorationDate,
+                    RestorationDate = o.Restoration.RestorationDate,
+                    Items = o.Items.Select(i => new OrderItemsOutputDto
+                    {
+                        BookId = i.BookId,
+                        BookName = i.Book.Title,
+                        BookQuantity = i.BookQuantity
+                    }).ToList()
                 })
-                 .ToListAsync();
+               
+                .ToListAsync();
+               
             return orders;
+
 
         }
 
 
-        public async Task<Order> GetOrdersByOrderId(int Orderid)
+        public async Task<DisplayOutput> GetOrdersByOrderId(int Orderid)
         {
 
-
-            var orders = _context.Orders.Include(o=>o.Items).SingleOrDefault(o => o.Id==Orderid);
+            var orders = await _context.Orders
+                 .Select(o => new DisplayOutput
+                 {
+                     Id = o.Id,
+                     MemberId = o.MemberId,
+                     MemberName = o.Member.Name,
+                     OrderDate = o.OrderDate,
+                     RestorationBeforeDate = o.RestorationDate,
+                     Items = o.Items.Select(i => new OrderItemsOutputDto
+                     {
+                         BookId = i.BookId,
+                         BookName = i.Book.Title,
+                         BookQuantity = i.BookQuantity
+                     }).ToList()
+                 })
+                .SingleOrDefaultAsync(o => o.Id == Orderid);
             return orders;
 
         }
 
-        public async Task<IEnumerable<OrdersListDto>> GetOrderslate()
+        public async Task<IEnumerable<DisplayOutput>> GetOrderslate()
         {
-            var orders = await _context.Orders
-                .Join(
-                _context.Items,
-                order => order.Id,
-                Item => Item.OrderId,
-                (order, Item) => new OrdersOutputDto
-                {
-                    Id = order.Id,
-                    MemberId = order.MemberId,
-                    MemberName = order.Member.Name,
-                    OrderDate = order.OrderDate,
-                    RestorationBeforeDate = order.RestorationDate,
-                    BookId = Item.BookId,
-                    BookTitle = Item.Book.Title,
-                    BookQuantity = Item.BookQuantity,
-                    RestorationDate= order.Restoration.RestorationDate
+        var orders = await _context.Orders
+        .Select(o => new DisplayOutput
+        {
+            Id = o.Id,
+            MemberId = o.MemberId,
+            MemberName = o.Member.Name,
+            OrderDate = o.OrderDate,
+            RestorationBeforeDate = o.RestorationDate,
+            RestorationDate = o.Restoration.RestorationDate,
+            Items = o.Items.Select(i => new OrderItemsOutputDto
+            {
+                BookId = i.BookId,
+                BookName = i.Book.Title,
+                BookQuantity = i.BookQuantity
+            }).ToList()
+        }).Where(o => (DateTime.Compare(o.RestorationBeforeDate, DateTime.Now) < 0 && o.RestorationDate == null))
+
+        .ToListAsync();
+
+        return orders;
 
 
-                }
-                ).Where(o => (DateTime.Compare(o.RestorationBeforeDate, DateTime.Now) < 0 && o.RestorationDate == null))
-                .GroupBy(o => o.Id)
-                .Select(g => new OrdersListDto
-                {
-                    Orders = g.ToList()
-                })
-                 .ToListAsync();
-            return orders;
         }
 
 
-        public async Task<IEnumerable<OrdersListDto>> GetOrdersbyOrderDateFilter(DateTime date1, DateTime date2)
+        public async Task<IEnumerable<DisplayOutput>> GetOrdersbyOrderDateFilter(DateTime date1, DateTime date2)
         {
             var orders = await _context.Orders
-                .Join(
-                _context.Items,
-                order => order.Id,
-                Item => Item.OrderId,
-                   (order, Item) => new OrdersOutputDto
-                   {
-                       Id = order.Id,
-                       MemberId = order.MemberId,
-                       MemberName = order.Member.Name,
-                       OrderDate = order.OrderDate,
-                       RestorationBeforeDate = order.RestorationDate,
-                       BookId = Item.BookId,
-                       BookTitle = Item.Book.Title,
-                       BookQuantity = Item.BookQuantity,
-                       RestorationDate = order.Restoration.RestorationDate
-
-
-                   }
-                ).Where(o => (DateTime.Compare(date1, o.OrderDate) <= 0 && DateTime.Compare(date2, o.OrderDate) >= 0))
-                .GroupBy(o => o.Id)
-                .Select(g => new OrdersListDto
+            .Select(o => new DisplayOutput
+            {
+                Id = o.Id,
+                MemberId = o.MemberId,
+                MemberName = o.Member.Name,
+                OrderDate = o.OrderDate,
+                RestorationBeforeDate = o.RestorationDate,
+                RestorationDate = o.Restoration.RestorationDate,
+                Items = o.Items.Select(i => new OrderItemsOutputDto
                 {
+                    BookId = i.BookId,
+                    BookName = i.Book.Title,
+                    BookQuantity = i.BookQuantity
+                }).ToList()
+            }).Where(o => (DateTime.Compare(date1, o.OrderDate) <= 0 && DateTime.Compare(date2, o.OrderDate) >= 0))
 
-                    Orders = g.ToList()
-                })
-                 .ToListAsync();
-            return orders;
-        }
+            .ToListAsync();
 
-        public async Task<IEnumerable<OrdersListDto>> GetOrdersbyRestorationDateFilter(DateTime date1, DateTime date2)
-        {
-            var orders = await _context.Orders
-                .Join(
-                _context.Items,
-                order => order.Id,
-                Item => Item.OrderId,
-                (order, Item) => new OrdersOutputDto
-                {
-                    Id = order.Id,
-                    MemberId = order.MemberId,
-                    MemberName = order.Member.Name,
-                    OrderDate = order.OrderDate,
-                    RestorationBeforeDate = order.RestorationDate,
-                    BookId = Item.BookId,
-                    BookTitle = Item.Book.Title,
-                    BookQuantity = Item.BookQuantity,
-                    RestorationDate = order.Restoration.RestorationDate
-
-
-                }
-                ).Where(o => (DateTime.Compare(date1, o.RestorationBeforeDate) <= 0 && DateTime.Compare(date2, o.RestorationBeforeDate) >= 0))
-                .GroupBy(o => o.Id)
-                .Select(g => new OrdersListDto
-                {
-                    Orders = g.ToList()
-
-                })
-                 .ToListAsync();
             return orders;
 
         }
 
-        public async Task<IEnumerable<OrdersListDto>> GetOrdersByMemberId(int MemberId)
+        public async Task<IEnumerable<DisplayOutput>> GetOrdersbyRestorationDateFilter(DateTime date1, DateTime date2)
         {
-
             var orders = await _context.Orders
-                .Join(
-                _context.Items,
-                order => order.Id,
-                Item => Item.OrderId,
-                (order, Item) => new OrdersOutputDto
+            .Select(o => new DisplayOutput
+            {
+                Id = o.Id,
+                MemberId = o.MemberId,
+                MemberName = o.Member.Name,
+                OrderDate = o.OrderDate,
+                RestorationBeforeDate = o.RestorationDate,
+                RestorationDate = o.Restoration.RestorationDate,
+                Items = o.Items.Select(i => new OrderItemsOutputDto
                 {
-                    Id = order.Id,
-                    MemberId = order.MemberId,
-                    MemberName = order.Member.Name,
-                    OrderDate = order.OrderDate,
-                    RestorationBeforeDate = order.RestorationDate,
-                    BookId = Item.BookId,
-                    BookTitle = Item.Book.Title,
-                    BookQuantity = Item.BookQuantity,
-                    RestorationDate = order.Restoration.RestorationDate
+                    BookId = i.BookId,
+                    BookName = i.Book.Title,
+                    BookQuantity = i.BookQuantity
+                }).ToList()
+            }).Where(o => (DateTime.Compare(date1, o.RestorationBeforeDate) <= 0 && DateTime.Compare(date2, o.RestorationBeforeDate) >= 0))
 
+            .ToListAsync();
 
-                }
-                ).Where(o => o.MemberId == MemberId)
-                .GroupBy(o => o.Id)
-                .Select(g => new OrdersListDto
-                {
-                    Orders = g.ToList()
-
-                })
-                 .ToListAsync();
             return orders;
+
+
 
         }
 
-        public async Task<IEnumerable<OrdersListDto>> GetOrdersByBookId(int BookId)
+        public async Task<IEnumerable<DisplayOutput>> GetOrdersByMemberId(int MemberId)
         {
             var orders = await _context.Orders
-                .Join(
-                _context.Items,
-                order => order.Id,
-                Item => Item.OrderId,
-                (order, Item) => new OrdersOutputDto
+            .Select(o => new DisplayOutput
+            {
+                Id = o.Id,
+                MemberId = o.MemberId,
+                MemberName = o.Member.Name,
+                OrderDate = o.OrderDate,
+                RestorationBeforeDate = o.RestorationDate,
+                RestorationDate = o.Restoration.RestorationDate,
+                Items = o.Items.Select(i => new OrderItemsOutputDto
                 {
-                    Id = order.Id,
-                    MemberId = order.MemberId,
-                    MemberName = order.Member.Name,
-                    OrderDate = order.OrderDate,
-                    RestorationBeforeDate = order.RestorationDate,
-                    BookId = Item.BookId,
-                    BookTitle = Item.Book.Title,
-                    BookQuantity = Item.BookQuantity,
-                    RestorationDate = order.Restoration.RestorationDate
+                    BookId = i.BookId,
+                    BookName = i.Book.Title,
+                    BookQuantity = i.BookQuantity
+                }).ToList()
+            }).Where(o => o.MemberId == MemberId)
 
+            .ToListAsync();
 
-                }
-                ).Where(o => o.BookId == BookId)
-                .GroupBy(o => o.Id)
-                .Select(g => new OrdersListDto
-                {
-                    Orders = g.ToList()
-
-                })
-                 .ToListAsync();
             return orders;
+
+
+
+        }
+
+        public async Task<IEnumerable<DisplayOutput>> GetOrdersByBookId(int BookId)
+        {
+
+            var orders = await _context.Items
+                       .Where(o => o.BookId == BookId)
+                       .Select(o=> new DisplayOutput
+                       {
+                           Id=o.Order.Id,
+                           MemberName = o.Order.Member.Name,
+                           OrderDate = o.Order.OrderDate,
+                           RestorationBeforeDate = o.Order.RestorationDate,
+                           RestorationDate = o.Order.Restoration.RestorationDate,
+                           Items = o.Order.Items.Select(i => new OrderItemsOutputDto
+                           {
+                               BookId = i.BookId,
+                               BookName = i.Book.Title,
+                               BookQuantity = i.BookQuantity
+                           }).ToList()
+
+                       }
+                       )
+                       .ToListAsync();
+
+            return orders;
+
 
         }
 
