@@ -1,5 +1,6 @@
 using LibrarySystem.Models;
 using LibrarySystem.Services;
+using LibrarySystem.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -27,6 +28,9 @@ builder.Services.AddTransient<IMemberService, MemberService>();
 builder.Services.AddTransient<IOrdersService, OrdersService>();
 builder.Services.AddTransient<IRestorationService, RestorationService>();
 
+///repository pattern & unit of work 
+
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 
 

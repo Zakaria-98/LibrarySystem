@@ -4,6 +4,7 @@ using LibrarySystem.Dto;
 using Microsoft.EntityFrameworkCore;
 using LibrarySystem.Models;
 using LibrarySystem.Services;
+using LibrarySystem.UnitOfWork;
 
 namespace LibrarySystem.Controllers
 {
@@ -13,16 +14,19 @@ namespace LibrarySystem.Controllers
     {
 
             private readonly ICategoriesService _categoriesService;
-            public CategoriesController(ICategoriesService categoriesService)
+
+            
+        public CategoriesController(ICategoriesService categoriesService)
             {
             _categoriesService = categoriesService;
+            
             }
 
             [HttpGet]
 
             public async Task<IActionResult> GetAllCategories()
             {
-                var categories =await _categoriesService.GetAllCategories();
+            var categories = await _categoriesService.GetAllCategories();
                 return Ok(categories);
 
             }
@@ -32,21 +36,23 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetCategoriesById(int id)
         {
-            var category =await _categoriesService.GetCategoriesById(id);
+
+            var category = await _categoriesService.GetCategoriesById(id);
+
             if (category == null)
-                return NotFound();
+                return BadRequest("Wrong Id !");
 
             return Ok(category);
 
         }
 
 
-        [HttpPost]
+            [HttpPost]
             public async Task<IActionResult> AddCategory([FromBody] CategoryDto dto)
             {
 
             
-                var category = new Category { Name = dto.Name };
+              var category = new Category { Name = dto.Name };
 
                await _categoriesService.AddCategory(category);
 
@@ -63,10 +69,10 @@ namespace LibrarySystem.Controllers
             var category = await _categoriesService.GetCategoriesById(id);
 
             if (category == null)
-                return NotFound();
+                return NotFound("Wrong Id !");
 
             category.Name = dto.Name;
-            _categoriesService.UpdateCategory(category);    
+           var Category= _categoriesService.UpdateCategory(category);    
            
             return Ok("Updated done successfully");
 
@@ -79,9 +85,9 @@ namespace LibrarySystem.Controllers
             var category = await _categoriesService.GetCategoriesById(id);
 
             if (category == null)
-                return NotFound();
+                return NotFound("Wrong Id !");
 
-           
+
             _categoriesService.DeleteCategory(category);
 
             return Ok("Updated done successfully");

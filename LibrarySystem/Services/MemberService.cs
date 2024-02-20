@@ -1,5 +1,6 @@
 ﻿using LibrarySystem.Dto;
 using LibrarySystem.Models;
+using LibrarySystem.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibrarySystem.Services
@@ -7,63 +8,50 @@ namespace LibrarySystem.Services
     public class MemberService:IMemberService
     {
         private ApplicationDbContext _context;
-        public MemberService(ApplicationDbContext context)
+        private readonly IUnitOfWork _unitofwork;
+
+        public MemberService(ApplicationDbContext context, IUnitOfWork unitofwork)
         {
             _context = context;
+            _unitofwork = unitofwork;
         }
 
-        public async Task<Member> AddMember(MemberDto dto)
+        public async Task<Member> AddMember(Member member)
         {
-            var member = new Member { Name = dto.Name };
-            _context.Members.AddAsync(member);
-            _context.SaveChanges();
-            return member;
+            var Member = await _unitofwork.Members.AddAsync(member);
+            _unitofwork.Complete();
+            return Member;
         }
 
-        public async Task<Member> DeleteMember(int id)
+        public Member DeleteMember(Member member)
         {
-            var member = await _context.Members.SingleOrDefaultAsync(member => member.Id == id);
+            _unitofwork.Members.Delete(member);
+            _unitofwork.Complete();
 
-
-            _context.Remove(member);
-            _context.SaveChanges();
             return member;
         }
 
         public async Task<IEnumerable<Member>> GetAllMembers()
         {
-            var members = await _context.Members.Select(g => new Member
-            {
-                Name = g.Name,
-                Id = g.Id
-
-
-            })
-            .ToListAsync(); ;
-            return members;
+            var Members = await _unitofwork.Members.GetAllAsync();
+            return Members;
         }
 
         public async Task<Member> GetMembersById(int id)
         {
-            var member = await _context.Members.Where(member => member.Id == id).Select(g => new Member
-            {
-                Name = g.Name,
-                Id = g.Id,
+            var Member = await _unitofwork.Members.GetByIdAsync(id);
+            if (Member == null)
+                return null;
 
-            })
-             .SingleOrDefaultAsync();
-
-            return member;
+            return Member;
         }
 
-        public async Task<Member> UpdateMember(int id, MemberDto dto)
+        public  Member UpdateMember(Member member)
         {
-            var member = await _context.Members.SingleOrDefaultAsync(member => member.Id == id);
 
-            
-            member.Name = dto.Name;
-            _context.Update(member);
-            _context.SaveChanges();
+            _unitofwork.Members.Update(member);
+            _unitofwork.Complete();
+
             return member;
         }
     }

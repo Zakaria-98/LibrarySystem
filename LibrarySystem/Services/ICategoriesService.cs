@@ -9,9 +9,9 @@ namespace LibrarySystem.Services
 
         Task<Category> AddCategory(Category category);
 
-        Task<Category> UpdateCategory(Category category);
+        Category UpdateCategory(Category category);
 
-        Task<Category> DeleteCategory(Category category);
+        Category DeleteCategory(Category category);
         
     }
 }

@@ -1,5 +1,6 @@
 ﻿using LibrarySystem.Dto;
 using LibrarySystem.Models;
+using LibrarySystem.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,15 +9,103 @@ namespace LibrarySystem.Services
     public class OrdersService : IOrdersService
     {
         private ApplicationDbContext _context;
-        public OrdersService(ApplicationDbContext context)
+        private readonly IUnitOfWork _unitofwork;
+
+        public OrdersService(ApplicationDbContext context, IUnitOfWork unitofwork)
         {
             _context = context;
+            _unitofwork = unitofwork;
         }
         public async Task<IEnumerable<DisplayOutput>> GetAllOrders()
         {
 
-            var orders = await _context.Orders
-                .Select(o => new DisplayOutput
+            var orders = await _unitofwork.Orders.GetAllAsync(o => new DisplayOutput
+            {
+                Id = o.Id,
+                MemberId = o.MemberId,
+                MemberName = o.Member.Name,
+                OrderDate = o.OrderDate,
+                RestorationBeforeDate = o.RestorationDate,
+                RestorationDate = o.Restoration.RestorationDate,
+                Items = o.Items.Select(i => new OrderItemsOutputDto
+                {
+                    BookId = i.BookId,
+                    BookName = i.Book.Title,
+                    BookQuantity = i.BookQuantity
+                }).ToList()
+            });
+
+
+
+
+            return orders;
+
+
+        }
+
+
+        public async Task<DisplayOutput> GetOrdersByOrderId(int Orderid)
+        {
+
+            var orders = await _unitofwork.Orders.GetByIdAsync(o=>o.Id==Orderid,o => new DisplayOutput
+            {
+                Id = o.Id,
+                MemberId = o.MemberId,
+                MemberName = o.Member.Name,
+                OrderDate = o.OrderDate,
+                RestorationBeforeDate = o.RestorationDate,
+                RestorationDate = o.Restoration.RestorationDate,
+                Items = o.Items.Select(i => new OrderItemsOutputDto
+                {
+                    BookId = i.BookId,
+                    BookName = i.Book.Title,
+                    BookQuantity = i.BookQuantity
+                }).ToList()
+            });
+
+
+
+
+            return orders;
+
+        }
+
+        public async Task<IEnumerable<DisplayOutput>> GetOrderslate()
+        {
+            var orders = await _unitofwork.Orders.GetListAsync(
+                o => (DateTime.Compare(o.RestorationDate, DateTime.Now) < 0 && o.Restoration.RestorationDate == null),
+                o => new DisplayOutput
+            {
+                Id = o.Id,
+                MemberId = o.MemberId,
+                MemberName = o.Member.Name,
+                OrderDate = o.OrderDate,
+                RestorationBeforeDate = o.RestorationDate,
+                RestorationDate = o.Restoration.RestorationDate,
+                Items = o.Items.Select(i => new OrderItemsOutputDto
+                {
+                    BookId = i.BookId,
+                    BookName = i.Book.Title,
+                    BookQuantity = i.BookQuantity
+                }).ToList()
+            });
+
+
+
+
+            return orders;
+
+    
+
+
+        }
+
+
+        public async Task<IEnumerable<DisplayOutput>> GetOrdersbyOrderDateFilter(DateTime date1, DateTime date2)
+        {
+            var orders = await _unitofwork.Orders.GetListAsync(
+                o => (DateTime.Compare(date1, o.OrderDate) <= 0 && DateTime.Compare(date2, o.OrderDate) >= 0),
+                o => new DisplayOutput
                 {
                     Id = o.Id,
                     MemberId = o.MemberId,
@@ -30,140 +119,69 @@ namespace LibrarySystem.Services
                         BookName = i.Book.Title,
                         BookQuantity = i.BookQuantity
                     }).ToList()
-                })
-               
-                .ToListAsync();
-               
+                });
+
+
+
+
             return orders;
 
 
-        }
-
-
-        public async Task<DisplayOutput> GetOrdersByOrderId(int Orderid)
-        {
-
-            var orders = await _context.Orders
-                 .Select(o => new DisplayOutput
-                 {
-                     Id = o.Id,
-                     MemberId = o.MemberId,
-                     MemberName = o.Member.Name,
-                     OrderDate = o.OrderDate,
-                     RestorationBeforeDate = o.RestorationDate,
-                     Items = o.Items.Select(i => new OrderItemsOutputDto
-                     {
-                         BookId = i.BookId,
-                         BookName = i.Book.Title,
-                         BookQuantity = i.BookQuantity
-                     }).ToList()
-                 })
-                .SingleOrDefaultAsync(o => o.Id == Orderid);
-            return orders;
-
-        }
-
-        public async Task<IEnumerable<DisplayOutput>> GetOrderslate()
-        {
-        var orders = await _context.Orders
-        .Select(o => new DisplayOutput
-        {
-            Id = o.Id,
-            MemberId = o.MemberId,
-            MemberName = o.Member.Name,
-            OrderDate = o.OrderDate,
-            RestorationBeforeDate = o.RestorationDate,
-            RestorationDate = o.Restoration.RestorationDate,
-            Items = o.Items.Select(i => new OrderItemsOutputDto
-            {
-                BookId = i.BookId,
-                BookName = i.Book.Title,
-                BookQuantity = i.BookQuantity
-            }).ToList()
-        }).Where(o => (DateTime.Compare(o.RestorationBeforeDate, DateTime.Now) < 0 && o.RestorationDate == null))
-
-        .ToListAsync();
-
-        return orders;
-
-
-        }
-
-
-        public async Task<IEnumerable<DisplayOutput>> GetOrdersbyOrderDateFilter(DateTime date1, DateTime date2)
-        {
-            var orders = await _context.Orders
-            .Select(o => new DisplayOutput
-            {
-                Id = o.Id,
-                MemberId = o.MemberId,
-                MemberName = o.Member.Name,
-                OrderDate = o.OrderDate,
-                RestorationBeforeDate = o.RestorationDate,
-                RestorationDate = o.Restoration.RestorationDate,
-                Items = o.Items.Select(i => new OrderItemsOutputDto
-                {
-                    BookId = i.BookId,
-                    BookName = i.Book.Title,
-                    BookQuantity = i.BookQuantity
-                }).ToList()
-            }).Where(o => (DateTime.Compare(date1, o.OrderDate) <= 0 && DateTime.Compare(date2, o.OrderDate) >= 0))
-
-            .ToListAsync();
-
-            return orders;
 
         }
 
         public async Task<IEnumerable<DisplayOutput>> GetOrdersbyRestorationDateFilter(DateTime date1, DateTime date2)
         {
-            var orders = await _context.Orders
-            .Select(o => new DisplayOutput
-            {
-                Id = o.Id,
-                MemberId = o.MemberId,
-                MemberName = o.Member.Name,
-                OrderDate = o.OrderDate,
-                RestorationBeforeDate = o.RestorationDate,
-                RestorationDate = o.Restoration.RestorationDate,
-                Items = o.Items.Select(i => new OrderItemsOutputDto
+            var orders = await _unitofwork.Orders.GetListAsync(
+                o => (DateTime.Compare(date1, o.RestorationDate) <= 0 && DateTime.Compare(date2, o.RestorationDate) >= 0),
+                o => new DisplayOutput
                 {
-                    BookId = i.BookId,
-                    BookName = i.Book.Title,
-                    BookQuantity = i.BookQuantity
-                }).ToList()
-            }).Where(o => (DateTime.Compare(date1, o.RestorationBeforeDate) <= 0 && DateTime.Compare(date2, o.RestorationBeforeDate) >= 0))
+                    Id = o.Id,
+                    MemberId = o.MemberId,
+                    MemberName = o.Member.Name,
+                    OrderDate = o.OrderDate,
+                    RestorationBeforeDate = o.RestorationDate,
+                    RestorationDate = o.Restoration.RestorationDate,
+                    Items = o.Items.Select(i => new OrderItemsOutputDto
+                    {
+                        BookId = i.BookId,
+                        BookName = i.Book.Title,
+                        BookQuantity = i.BookQuantity
+                    }).ToList()
+                });
 
-            .ToListAsync();
+
+
 
             return orders;
 
 
-
+            
         }
 
         public async Task<IEnumerable<DisplayOutput>> GetOrdersByMemberId(int MemberId)
         {
-            var orders = await _context.Orders
-            .Select(o => new DisplayOutput
-            {
-                Id = o.Id,
-                MemberId = o.MemberId,
-                MemberName = o.Member.Name,
-                OrderDate = o.OrderDate,
-                RestorationBeforeDate = o.RestorationDate,
-                RestorationDate = o.Restoration.RestorationDate,
-                Items = o.Items.Select(i => new OrderItemsOutputDto
+            var orders = await _unitofwork.Orders.GetListAsync(
+                o => o.MemberId == MemberId,
+                o => new DisplayOutput
                 {
-                    BookId = i.BookId,
-                    BookName = i.Book.Title,
-                    BookQuantity = i.BookQuantity
-                }).ToList()
-            }).Where(o => o.MemberId == MemberId)
+                    Id = o.Id,
+                    MemberId = o.MemberId,
+                    MemberName = o.Member.Name,
+                    OrderDate = o.OrderDate,
+                    RestorationBeforeDate = o.RestorationDate,
+                    RestorationDate = o.Restoration.RestorationDate,
+                    Items = o.Items.Select(i => new OrderItemsOutputDto
+                    {
+                        BookId = i.BookId,
+                        BookName = i.Book.Title,
+                        BookQuantity = i.BookQuantity
+                    }).ToList()
+                });
 
-            .ToListAsync();
 
             return orders;
+
 
 
 
@@ -197,49 +215,64 @@ namespace LibrarySystem.Services
 
         }
 
-        public async Task<bool> AddOrder(OrderDto dto, List<ItemsDto> dto2)
+        public async Task<string> AddOrder(OrderDto dto, List<ItemsDto> dto2)
         {
-            var order = new Order
+            try
             {
-                OrderDate = DateTime.Now,
-                RestorationDate = DateTime.Now.AddDays(7),
-                MemberId = dto.MemberId,
-            };
-
-            order.Items = new List<Item>();
-
-            //var book = new Book();
-            foreach (var item in dto2)
-            {
-
-                var book = await _context.Books.SingleOrDefaultAsync(b => b.Id == item.BookId);
-
-
-                if (book == null)
-                    return false;
-
-
-                if (item.BookQuantity > book.AvailableQuantity)
+                var order = new Order
                 {
-                    return false;
+                    OrderDate = DateTime.Now,
+                    RestorationDate = DateTime.Now.AddDays(7),
+                    MemberId = dto.MemberId,
+                };
 
+                order.Items = new List<Item>();
+
+                //var book = new Book();
+                foreach (var item in dto2)
+                {
+
+                    var book = await _unitofwork.Books.GetByIdAsync(item.BookId);
+
+
+                    if (book == null)
+                    {
+                        throw new Exception("wrong Id ");
+                        
+
+                    }
+
+
+                    if (item.BookQuantity > book.AvailableQuantity)
+                    {
+                        throw new Exception("The quantity is not exist ");
+
+                    }
+                    book.AvailableQuantity = book.AvailableQuantity - item.BookQuantity;
+
+                    order.Items.Add(
+                         new Item
+                         {
+                             BookId = item.BookId,
+                             Order = order,
+                             BookQuantity = item.BookQuantity
+
+                         });
                 }
-                book.AvailableQuantity = book.AvailableQuantity - item.BookQuantity;
 
-                order.Items.Add(
-                     new Item
-                     {
-                         BookId = item.BookId,
-                         Order = order,
-                         BookQuantity = item.BookQuantity
+                var Order = _unitofwork.Orders.AddAsync(order);
+                _unitofwork.Complete();
 
-                     });
+               // return true;
             }
 
-            await _context.Orders.AddAsync(order);
-            await _context.SaveChangesAsync();
+            catch (Exception e){
+                return e.Message ;
+            }
 
-            return true;
+            return new string("adedd succefully");
+
+
 
 
         }
@@ -247,7 +280,7 @@ namespace LibrarySystem.Services
 
         public async Task<bool> IsOrderRestored(int id)
         {
-            var order = await _context.Orders.SingleOrDefaultAsync(order => order.Id == id);
+            var order = await _unitofwork.Orders.GetByIdAsync(id);
 
 
             if (order == null)
@@ -258,20 +291,20 @@ namespace LibrarySystem.Services
             return true;
 
         }
-
+        
         public async Task<bool> UpdateOrder(int id, EditOrderDto dto,  List<ItemsDto> dto2)
         {
             
-            var order = await _context.Orders.SingleOrDefaultAsync(order => order.Id == id);
+            var order = await _unitofwork.Orders.FindByIdAsync(o=>o.Id==id, new[] { "Items" });
 
-            /*
+            
             if (order == null)
                 return false;
             if (order.RestorationId != null)
                 return false;
 
             if (dto.MemberId == null)
-                return false; */
+                return false; 
 
             order.OrderDate = dto.OrderDate;
             order.RestorationDate = dto.RestorationDate;
@@ -279,33 +312,37 @@ namespace LibrarySystem.Services
             order.MemberId = dto.MemberId;
 
 
-            //order.Items = new List<Item>();
+            order.Items = new List<Item>();
 
-            var items = _context.Items.Where(o => o.OrderId == id).ToList()
-                .Select(g => new
-                {
-                    BookId = g.BookId,
-                    BookQuantity = g.BookQuantity
-                });
+            var items = await _unitofwork.Items.GetListAsync(o => o.OrderId == id,
+               g => new Item
+               {
+                   BookId = g.BookId,
+                   BookQuantity = g.BookQuantity,
+                   
+               });
+
 
 
 
             var book = new Book();
             foreach (var item in items)
             {
-                book = await _context.Books.SingleOrDefaultAsync(b => b.Id == item.BookId);
+                book = await _unitofwork.Books.GetByIdAsync(item.BookId);
                 book.AvailableQuantity += item.BookQuantity;
             }
 
 
-            var items2 = _context.Items.Where(o => o.OrderId == id);
-            _context.RemoveRange(items2);
+
+           // _unitofwork.Items.DeleteRange(items);
+
+
 
 
 
             foreach (var item in dto2)
             {
-                book = await _context.Books.SingleOrDefaultAsync(b => b.Id == item.BookId);
+                book = await _unitofwork.Books.GetByIdAsync(item.BookId);
 
                 if (book == null)
                     return false;
@@ -333,9 +370,9 @@ namespace LibrarySystem.Services
 
 
 
-            _context.Update(order);
+            _unitofwork.Orders.Update(order);
 
-            await _context.SaveChangesAsync();
+             _unitofwork.Complete();
 
 
             return true;
@@ -346,7 +383,7 @@ namespace LibrarySystem.Services
 
         public async Task<bool> DeleteOrder(int id)
         {
-            var order = await _context.Orders.SingleOrDefaultAsync(o => o.Id == id);
+            var order = await _unitofwork.Orders.GetByIdAsync(id);
 
             if (order == null)
                 return false;
@@ -365,12 +402,12 @@ namespace LibrarySystem.Services
             var book = new Book();
             foreach (var item in items)
             {
-                book = await _context.Books.SingleOrDefaultAsync(b => b.Id == item.BookId);
+                book = await _unitofwork.Books.GetByIdAsync(item.BookId);
                 book.AvailableQuantity += item.BookQuantity;
             }
 
-            _context.Remove(order);
-            _context.SaveChanges();
+            _unitofwork.Orders.Delete(order);
+            _unitofwork.Complete();
             return true;
 
         }

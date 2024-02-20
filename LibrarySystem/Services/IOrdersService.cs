@@ -18,7 +18,7 @@ namespace LibrarySystem.Services
         Task<IEnumerable<DisplayOutput>> GetOrdersByMemberId( int MemberId);
 
         Task<IEnumerable<DisplayOutput>> GetOrdersByBookId(int BookId);
-        Task<bool> AddOrder(OrderDto dto, List<ItemsDto> dto2);
+        Task<string> AddOrder(OrderDto dto, List<ItemsDto> dto2);
 
         Task<bool> UpdateOrder(int id, EditOrderDto dto, List<ItemsDto> dto2);
 

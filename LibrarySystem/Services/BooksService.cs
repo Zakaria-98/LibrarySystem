@@ -1,5 +1,6 @@
 ﻿using LibrarySystem.Dto;
 using LibrarySystem.Models;
+using LibrarySystem.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,104 +9,75 @@ namespace LibrarySystem.Services
     public class BooksService : IBooksServices
     {
         private ApplicationDbContext _context;
-        public BooksService(ApplicationDbContext context)
+        private readonly IUnitOfWork _unitofwork;
+
+        public BooksService(ApplicationDbContext context, IUnitOfWork unitofwork)
         {
             _context = context;
-        } 
+            _unitofwork = unitofwork;
+        }
 
-        public async Task<Book> AddBook([FromBody] BookDto dto)
+        public async Task<Book> AddBook( Book book)
         {
 
-            var book = new Book
-            {
-                Title = dto.Title,
-                AllQuantity = dto.AllQuantity,
-                AvailableQuantity = dto.AllQuantity,
-                CategoryId = dto.CategoryId
-
-            };
-            _context.Books.AddAsync(book);
-            _context.SaveChanges();
-            return book;
+            var Book = await _unitofwork.Books.AddAsync(book);
+            _unitofwork.Complete();
+            return Book;
 
 
         }
 
         public async Task<IEnumerable<Book>> GetAllBooks()
         {
-            var books = await _context.Books
-                .Select(g => new Book
-                {
-                    Id = g.Id,
-                    Title = g.Title,
-                    AllQuantity = g.AllQuantity,
-                    AvailableQuantity = g.AvailableQuantity,
-                    CategoryId = g.CategoryId,
-                })
-                .ToListAsync();
-
-
-            return books;
+            var Books = await _unitofwork.Books.GetAllAsync();
+            return Books;
         }
         public async Task<Book> GetBookById(int id)
         {
-            var book = await _context.Books.Where(book => book.Id == id).Select(g => new Book
-            {
-                Id = g.Id,
-                Title = g.Title,
-                CategoryId = g.CategoryId,
-                AllQuantity = g.AllQuantity,
-                AvailableQuantity = g.AvailableQuantity
 
 
-            })
-                
-            .SingleOrDefaultAsync();
+            var Book = await _unitofwork.Books.GetByIdAsync(id);
+            if (Book == null)
+                return null;
 
-            return book;
+            return Book;
 
         }
 
          public async Task<IEnumerable<Book>> GetBooksByCategory(int Categoryid)
-        {  
+        {
+            var books = await _unitofwork.Books.GetListAsync(c => c.CategoryId == Categoryid,
+                g => new Book
+                {
+                    Id = g.Id,
+                    Title = g.Title,
+                    CategoryId = g.CategoryId,
+                    AllQuantity = g.AllQuantity,
+                    AvailableQuantity = g.AvailableQuantity
 
-            var books = await _context.Books.Where(c => c.CategoryId == Categoryid)
-                 .Select(g => new Book
-                 {
-                     Id = g.Id,
-                     Title = g.Title,
-                     CategoryId = g.CategoryId,
-                     AllQuantity = g.AllQuantity,
-                     AvailableQuantity = g.AvailableQuantity
 
+                });
 
-                 }).ToListAsync();
             return books;
 
         }
 
 
 
-        public async Task<Book> UpdateBook(int id, [FromBody] EditBookDto dto)
+        public  Book UpdateBook(Book book)
         {
-            var book = await GetBookById(id);
 
-            book.Title = dto.Title;
-            book.AllQuantity = dto.AllQuantity;
-            book.AvailableQuantity = dto.AvailableQuantity;
-            book.CategoryId = dto.CategoryId;
+            _unitofwork.Books.Update(book);
+            _unitofwork.Complete();
 
-
-            _context.Update(book);
-            _context.SaveChanges();
             return book;
         }
 
-        public async Task<Book> DeleteBook(int id)
+        public Book DeleteBook(Book book)
         {
-            var book = await GetBookById(id);
-            _context.Remove(book);
-            _context.SaveChanges();
+            _unitofwork.Books.Delete(book);
+            _unitofwork.Complete();
+
             return book;
         }
 

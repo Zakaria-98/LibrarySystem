@@ -43,7 +43,11 @@ namespace LibrarySystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddMember([FromBody] MemberDto dto)
         {
-            var member = _memberService.AddMember(dto);
+            var Member = new Member
+            {
+                Name = dto.Name,
+            };
+            var member = _memberService.AddMember(Member);
             return Ok(member);
 
 
@@ -52,12 +56,14 @@ namespace LibrarySystem.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMember(int id, [FromBody] MemberDto dto)
         {
-            var member = _memberService.GetMembersById(id);
+            var Member = await _memberService.GetMembersById(id);
 
-            if (member == null)
+            if (Member == null)
                 return NotFound("Wrong Id: " + id);
 
-           member=_memberService.UpdateMember(id, dto);
+            Member.Name = dto.Name;
+
+           var member= _memberService.UpdateMember(Member);
             return Ok(member);
 
         }
@@ -65,12 +71,12 @@ namespace LibrarySystem.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteMember(int id)
         {
-            var member = await _memberService.GetMembersById(id);
+            var Member = await _memberService.GetMembersById(id);
 
-            if (member == null)
+            if (Member == null)
                 return NotFound("Wrong Id: " + id);
 
-            member = await _memberService.DeleteMember(id);
+           var  member =   _memberService.DeleteMember(Member);
             return Ok(member);
 
         }

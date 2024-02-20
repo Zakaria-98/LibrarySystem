@@ -6,7 +6,7 @@
 
         public DateTime RestorationDate { get; set; }
 
-        public ICollection<Order> Orders { get; set; }
+        public Order Order { get; set; }
 
 
     }

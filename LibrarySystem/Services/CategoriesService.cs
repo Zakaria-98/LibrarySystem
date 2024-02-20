@@ -1,4 +1,5 @@
 ﻿using LibrarySystem.Models;
+using LibrarySystem.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibrarySystem.Services
@@ -6,64 +7,58 @@ namespace LibrarySystem.Services
     public class CategoriesService : ICategoriesService
     {
         private ApplicationDbContext _context;
-        public CategoriesService(ApplicationDbContext context)
+        private readonly IUnitOfWork _unitofwork;
+
+        public CategoriesService(ApplicationDbContext context, IUnitOfWork unitofwork)
         {
             _context = context;
+            _unitofwork = unitofwork;
         }
 
         public async Task<IEnumerable<Category>> GetAllCategories()
         {
-            var categories = await _context.Categories
-                .Select(g => new Category
-            {
-                Id = g.Id,
-                Name = g.Name,
-               
 
 
-            }).ToListAsync();
-            return  categories;
+            var categories = await _unitofwork.Categories.GetAllAsync();
+            return categories;
+        }
+
+
+
+        public async Task<Category> GetCategoriesById(int id)
+        {
+
+
+            var category = await _unitofwork.Categories.GetByIdAsync(id);
+            if (category == null)
+                return null;
+
+            return category;
+
+
         }
 
         public async Task<Category> AddCategory(Category category)
         {
 
-            _context.Categories.AddAsync(category);
-            _context.SaveChanges();
-            return category;
+            var result = await _unitofwork.Categories.AddAsync(category);
+            _unitofwork.Complete();
+            return result;
         }
 
-        public async Task<Category> GetCategoriesById(int id)
+        public  Category UpdateCategory(Category category)
         {
 
-                var category = await _context.Categories
-                    .Where(c => c.Id == id)
-                    .Select(g => new Category
-                    {
-                        Name = g.Name,
-                        Id = g.Id,
-                // Add other properties if necessary
-                    })
-                    .SingleOrDefaultAsync();
-
-                return category;
-            
-
-        }
-
-        public async Task<Category> UpdateCategory(Category category)
-        {
-
-            _context.Update(category);
-            _context.SaveChanges();
+           _unitofwork.Categories.Update(category);
+            _unitofwork.Complete();
 
             return category;
         }
 
-        public async Task<Category> DeleteCategory(Category category)
+        public  Category DeleteCategory(Category category)
         {
-            _context.Remove(category);
-            _context.SaveChanges();
+           _unitofwork.Categories.Delete(category);
+            _unitofwork.Complete();
 
             return category;
         }

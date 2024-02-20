@@ -11,11 +11,11 @@ namespace LibrarySystem.Services
 
         Task<Member> GetMembersById(int id);
 
-        Task<Member> AddMember( MemberDto dto);
+        Task<Member> AddMember(Member member);
 
-        Task<Member> UpdateMember(int id, MemberDto dto);
+        Member UpdateMember(Member member);
 
-        Task<Member> DeleteMember(int id);
+        Member DeleteMember(Member member);
 
     }
 }

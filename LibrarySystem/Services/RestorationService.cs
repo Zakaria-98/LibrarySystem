@@ -1,5 +1,6 @@
 ﻿using LibrarySystem.Dto;
 using LibrarySystem.Models;
+using LibrarySystem.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibrarySystem.Services
@@ -7,22 +8,23 @@ namespace LibrarySystem.Services
     public class RestorationService:IRestorationService
     {
         private ApplicationDbContext _context;
-        public RestorationService(ApplicationDbContext context)
+        private readonly IUnitOfWork _unitofwork;
+
+        public RestorationService(ApplicationDbContext context, IUnitOfWork unitofwork)
         {
             _context = context;
+            _unitofwork = unitofwork;
         }
         public async Task<IEnumerable<RestorationOutputDto>> GetAllRestorations()
         {
-            var restorations = await _context.Restorations.Include(o => o.Orders).Select(o => new RestorationOutputDto
+            var restorations = await _unitofwork.Restorations.GetAllAsync((o => new RestorationOutputDto
             {
                 Id = o.Id,
                 RestorationDate = o.RestorationDate,
-                OrderId = o.Orders.SingleOrDefault(r => r.RestorationId == o.Id).Id
+                OrderId = o.Order.Id
 
-
-
-            })
-                .ToListAsync();
+            }));
+               
             return restorations;
 
         }
@@ -30,7 +32,7 @@ namespace LibrarySystem.Services
         public async Task<bool> AddRestoration(int id)
         {
 
-            var order = await _context.Orders.SingleOrDefaultAsync(o => o.Id == id);
+            var order = await _unitofwork.Orders.GetByIdAsync(id);
 
             if (order == null)
                 return false;
@@ -41,12 +43,12 @@ namespace LibrarySystem.Services
             {
                 RestorationDate = DateTime.Now
             };
-            restoration.Orders = new List<Order>();
-            order = await _context.Orders.SingleOrDefaultAsync(o => o.Id == id);
-            restoration.Orders.Add(order);
+            restoration.Order = new Order();
+            order = await _unitofwork.Orders.GetByIdAsync(id);
+            restoration.Order=order;
 
-            var items = _context.Items.Where(o => o.OrderId == id).ToList()
-                .Select(g => new
+            var items = await _unitofwork.Items.GetListAsync(o => o.OrderId == id,
+                g => new Item
                 {
                     BookId = g.BookId,
                     BookQuantity = g.BookQuantity
@@ -55,12 +57,12 @@ namespace LibrarySystem.Services
 
             foreach (var item in items)
             {
-                var book = await _context.Books.SingleOrDefaultAsync(b => b.Id == item.BookId);
+                var book = await _unitofwork.Books.GetByIdAsync(item.BookId);
                 book.AvailableQuantity += item.BookQuantity;
             }
 
-            await _context.Restorations.AddAsync(restoration);
-            _context.SaveChanges();
+            await _unitofwork.Restorations.AddAsync(restoration);
+            _unitofwork.Complete();
             return true;
 
         }
@@ -68,31 +70,31 @@ namespace LibrarySystem.Services
 
         public async Task<bool> DeleteRestoration(int id)
         {
-            var restoration = await _context.Restorations.SingleOrDefaultAsync(o => o.Id == id);
-            var order = await _context.Orders.SingleOrDefaultAsync(o => o.RestorationId == id);
+            var restoration = await _unitofwork.Restorations.FindByIdAsync(o => o.Id == id, new[] { "Order" });
+            var order = await _unitofwork.Orders.GetByIdAsync(restoration.Order.Id);
 
             if (restoration == null)
                 return false;
 
 
-            var items = _context.Items.Where(o => o.OrderId == order.Id).ToList()
-                        .Select(g => new
-                        {
-                            BookId = g.BookId,
-                            BookQuantity = g.BookQuantity
-                        });
-
+            var items = await _unitofwork.Items.GetListAsync(o => o.OrderId == order.Id,
+                g => new Item
+                {
+                    BookId = g.BookId,
+                    BookQuantity = g.BookQuantity
+                   
+                });
 
 
             var book = new Book();
             foreach (var item in items)
             {
-                book = await _context.Books.SingleOrDefaultAsync(b => b.Id == item.BookId);
+                book = await _unitofwork.Books.GetByIdAsync(item.BookId);
                 book.AvailableQuantity -= item.BookQuantity;
             }
 
-            _context.Remove(restoration);
-            _context.SaveChanges();
+            _unitofwork.Restorations.Delete(restoration);
+            _unitofwork.Complete();
             return true;
 
         }

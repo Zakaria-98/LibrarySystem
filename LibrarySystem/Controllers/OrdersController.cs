@@ -133,10 +133,8 @@ namespace LibrarySystem.Controllers
                 return NotFound("Wrong Id: " + dto.MemberId);
 
             var order = await _ordersService.AddOrder(dto, dto2);
-            if (!order )
-                return BadRequest(" wrong! please try again");
-            else
-            return Ok("Added successfuly");
+
+                return Ok(order);
 
         }
 

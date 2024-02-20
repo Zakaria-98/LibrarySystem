@@ -24,7 +24,7 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetAllBooks()
         {
-            var books = _booksService.GetAllBooks();
+            var books = await _booksService.GetAllBooks();
             return Ok(books);
 
         }
@@ -63,16 +63,17 @@ namespace LibrarySystem.Controllers
         public async Task<IActionResult> AddBook([FromBody] BookDto dto)
         {
 
-            var category = await _categoriesService.GetCategoriesById(dto.CategoryId);
+            var Book = new Book{ Title = dto.Title,
+                CategoryId=dto.CategoryId,
+                AllQuantity = dto.AllQuantity
+            
+            };
 
-            if (category == null)
-                return NotFound("Wrong Id: " + dto.CategoryId);
-
-            var book = await _booksService.AddBook(dto);
+           var book= await _booksService.AddBook(Book);
 
             return Ok(book);
 
-           
+
 
         }
 
@@ -90,8 +91,13 @@ namespace LibrarySystem.Controllers
                 return NotFound("Wrong Id: " + dto.CategoryId);
 
 
-           
-            book = await _booksService.UpdateBook(id, dto);
+             book.Title=dto.Title;
+            book.CategoryId=dto.CategoryId;
+            book.AllQuantity=dto.AllQuantity;
+            book.AvailableQuantity = dto.AvailableQuantity;
+
+
+            book =  _booksService.UpdateBook(book);
             return Ok("Updated done successfully");
 
         }
@@ -105,7 +111,7 @@ namespace LibrarySystem.Controllers
             if (book == null)
                 return NotFound("Wrong Id: " + id);
             
-            book = await _booksService.DeleteBook(id);
+            book =   _booksService.DeleteBook(book);
             return Ok(book);
            
 
