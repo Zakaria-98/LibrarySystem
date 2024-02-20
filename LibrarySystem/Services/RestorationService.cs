@@ -71,10 +71,12 @@ namespace LibrarySystem.Services
         public async Task<bool> DeleteRestoration(int id)
         {
             var restoration = await _unitofwork.Restorations.FindByIdAsync(o => o.Id == id, new[] { "Order" });
-            var order = await _unitofwork.Orders.GetByIdAsync(restoration.Order.Id);
 
             if (restoration == null)
                 return false;
+            var order = await _unitofwork.Orders.GetByIdAsync(restoration.Order.Id);
+
+
 
 
             var items = await _unitofwork.Items.GetListAsync(o => o.OrderId == order.Id,

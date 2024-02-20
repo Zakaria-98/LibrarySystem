@@ -189,28 +189,28 @@ namespace LibrarySystem.Services
 
         public async Task<IEnumerable<DisplayOutput>> GetOrdersByBookId(int BookId)
         {
+            var orders = await _unitofwork.Items.GetListAsync(
+               o => o.BookId == BookId,
+                o => new DisplayOutput
+                {
+                    Id = o.Order.Id,
+                    MemberName = o.Order.Member.Name,
+                    OrderDate = o.Order.OrderDate,
+                    RestorationBeforeDate = o.Order.RestorationDate,
+                    RestorationDate = o.Order.Restoration.RestorationDate,
+                    Items = o.Order.Items.Select(i => new OrderItemsOutputDto
+                    {
+                        BookId = i.BookId,
+                        BookName = i.Book.Title,
+                        BookQuantity = i.BookQuantity
+                    }).ToList()
 
-            var orders = await _context.Items
-                       .Where(o => o.BookId == BookId)
-                       .Select(o=> new DisplayOutput
-                       {
-                           Id=o.Order.Id,
-                           MemberName = o.Order.Member.Name,
-                           OrderDate = o.Order.OrderDate,
-                           RestorationBeforeDate = o.Order.RestorationDate,
-                           RestorationDate = o.Order.Restoration.RestorationDate,
-                           Items = o.Order.Items.Select(i => new OrderItemsOutputDto
-                           {
-                               BookId = i.BookId,
-                               BookName = i.Book.Title,
-                               BookQuantity = i.BookQuantity
-                           }).ToList()
+                });
 
-                       }
-                       )
-                       .ToListAsync();
 
             return orders;
+
+
 
 
         }
