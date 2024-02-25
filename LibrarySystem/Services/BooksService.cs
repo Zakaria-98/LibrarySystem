@@ -1,6 +1,9 @@
-﻿using LibrarySystem.Dto;
+﻿using LibrarySystem.Commands.BookCommands;
+using LibrarySystem.Dto;
 using LibrarySystem.Models;
+using LibrarySystem.Queries.BookQueries;
 using LibrarySystem.UnitOfWork;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,75 +13,79 @@ namespace LibrarySystem.Services
     {
         private ApplicationDbContext _context;
         private readonly IUnitOfWork _unitofwork;
+        private readonly IMediator _mediator;
 
-        public BooksService(ApplicationDbContext context, IUnitOfWork unitofwork)
+        public BooksService(ApplicationDbContext context, IUnitOfWork unitofwork, IMediator mediator)
         {
             _context = context;
             _unitofwork = unitofwork;
+            _mediator = mediator;
         }
 
-        public async Task<Book> AddBook( Book book)
-        {
 
-            var Book = await _unitofwork.Books.AddAsync(book);
-            _unitofwork.Complete();
-            return Book;
-
-
-        }
 
         public async Task<IEnumerable<Book>> GetAllBooks()
         {
-            var Books = await _unitofwork.Books.GetAllAsync();
-            return Books;
+            var query = new GetAllBooksQuery();
+            var result = await _mediator.Send(query);
+            return result;
         }
         public async Task<Book> GetBookById(int id)
         {
 
-
-            var Book = await _unitofwork.Books.GetByIdAsync(id);
-            if (Book == null)
+            var query = new GetBookByIdQuery(id);
+            var result = await _mediator.Send(query);
+            if (result == null)
                 return null;
 
-            return Book;
+            return result;
+
+
 
         }
 
          public async Task<IEnumerable<Book>> GetBooksByCategory(int Categoryid)
         {
-            var books = await _unitofwork.Books.GetListAsync(c => c.CategoryId == Categoryid,
-                g => new Book
-                {
-                    Id = g.Id,
-                    Title = g.Title,
-                    CategoryId = g.CategoryId,
-                    AllQuantity = g.AllQuantity,
-                    AvailableQuantity = g.AvailableQuantity
+            var query = new GetBooksByCategoryQuery(Categoryid);
+            var result = await _mediator.Send(query);
 
 
-                });
+            return result;
 
-            return books;
+
+
+        }
+
+        public async Task<Book> AddBook(Book book)
+        {
+            var command = new AddBookCommand(book);
+            var result = await _mediator.Send(command);
+
+
+            return result;
+
 
         }
 
 
-
-        public  Book UpdateBook(Book book)
+        public async Task<Book> UpdateBook(Book book)
         {
+            var command = new UpdateBookCommand(book);
+            var result = await _mediator.Send(command);
 
-            _unitofwork.Books.Update(book);
-            _unitofwork.Complete();
 
-            return book;
+            return result;
+
         }
 
-        public Book DeleteBook(Book book)
+        public async Task<Book> DeleteBook(Book book)
         {
-            _unitofwork.Books.Delete(book);
-            _unitofwork.Complete();
+            var command = new DeleteBookCommand(book);
+            var result = await _mediator.Send(command);
 
-            return book;
+
+            return result;
+
         }
 
 

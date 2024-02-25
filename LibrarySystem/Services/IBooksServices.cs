@@ -13,10 +13,10 @@ namespace LibrarySystem.Services
         Task<IEnumerable<Book>> GetBooksByCategory(int Categoryid);
 
         Task<Book> AddBook(Book book);
-        Book UpdateBook( Book book);
+        Task<Book> UpdateBook( Book book);
 
 
-        Book DeleteBook(Book book);
+        Task<Book> DeleteBook(Book book);
 
 
 

@@ -37,7 +37,7 @@ namespace LibrarySystem.Controllers
         public async Task<IActionResult> GetCategoriesById(int id)
         {
 
-            var category = await _categoriesService.GetCategoriesById(id);
+            var category = await _categoriesService.GetCategoryById(id);
 
             if (category == null)
                 return BadRequest("Wrong Id !");
@@ -66,7 +66,7 @@ namespace LibrarySystem.Controllers
 
 
 
-            var category = await _categoriesService.GetCategoriesById(id);
+            var category = await _categoriesService.GetCategoryById(id);
 
             if (category == null)
                 return NotFound("Wrong Id !");
@@ -82,7 +82,7 @@ namespace LibrarySystem.Controllers
         public async Task<IActionResult> DeleteCategory(int id)
         {
 
-            var category = await _categoriesService.GetCategoriesById(id);
+            var category = await _categoriesService.GetCategoryById(id);
 
             if (category == null)
                 return NotFound("Wrong Id !");

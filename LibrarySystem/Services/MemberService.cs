@@ -1,6 +1,9 @@
-﻿using LibrarySystem.Dto;
+﻿using LibrarySystem.Commands.MemberCommands;
+using LibrarySystem.Dto;
 using LibrarySystem.Models;
+using LibrarySystem.Queries.MemberQueries;
 using LibrarySystem.UnitOfWork;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibrarySystem.Services
@@ -9,50 +12,61 @@ namespace LibrarySystem.Services
     {
         private ApplicationDbContext _context;
         private readonly IUnitOfWork _unitofwork;
+        private readonly IMediator _mediator;
 
-        public MemberService(ApplicationDbContext context, IUnitOfWork unitofwork)
+
+        public MemberService(ApplicationDbContext context, IUnitOfWork unitofwork, IMediator mediator)
         {
             _context = context;
             _unitofwork = unitofwork;
+            _mediator = mediator;
         }
 
-        public async Task<Member> AddMember(Member member)
-        {
-            var Member = await _unitofwork.Members.AddAsync(member);
-            _unitofwork.Complete();
-            return Member;
-        }
-
-        public Member DeleteMember(Member member)
-        {
-            _unitofwork.Members.Delete(member);
-            _unitofwork.Complete();
-
-            return member;
-        }
 
         public async Task<IEnumerable<Member>> GetAllMembers()
         {
-            var Members = await _unitofwork.Members.GetAllAsync();
-            return Members;
+            var query = new GetAllMembersQuery();
+            var result = await _mediator.Send(query);
+            return result;
         }
 
         public async Task<Member> GetMembersById(int id)
         {
-            var Member = await _unitofwork.Members.GetByIdAsync(id);
-            if (Member == null)
+            var query = new GetMembersByIdQuery(id);
+            var result = await _mediator.Send(query);
+            if (result == null)
                 return null;
 
-            return Member;
+            return result;
+
         }
 
-        public  Member UpdateMember(Member member)
+        public async Task<Member> AddMember(Member member)
         {
+            var command = new AddMemberCommand(member);
+            var result = await _mediator.Send(command);
 
-            _unitofwork.Members.Update(member);
-            _unitofwork.Complete();
 
-            return member;
+            return result;
+        }
+
+        public async Task<Member> DeleteMember(Member member)
+        {
+            var command = new DeleteMemberCommand(member);
+            var result = await _mediator.Send(command);
+
+
+            return result;
+        }
+
+
+        public async Task<Member> UpdateMember(Member member)
+        {
+            var command = new UpdateMemberCommand(member);
+            var result = await _mediator.Send(command);
+
+
+            return result;
         }
     }
 }

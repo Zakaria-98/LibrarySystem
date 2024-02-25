@@ -32,6 +32,8 @@ builder.Services.AddTransient<IRestorationService, RestorationService>();
 
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
+//
+builder.Services.AddMediatR(o => o.RegisterServicesFromAssemblyContaining<Program>());
 
 
 

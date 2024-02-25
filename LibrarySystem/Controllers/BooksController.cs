@@ -48,7 +48,7 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetBooksByCategory(int Categoryid)
         {
-            var category = await _categoriesService.GetCategoriesById(Categoryid);
+            var category = await _categoriesService.GetCategoryById(Categoryid);
 
             if (category == null)
                 return NotFound("Wrong Id: " + Categoryid);
@@ -85,7 +85,7 @@ namespace LibrarySystem.Controllers
             if (book == null)
                 return NotFound("Wrong Id: " + id);
 
-            var category = await _categoriesService.GetCategoriesById(dto.CategoryId);
+            var category = await _categoriesService.GetCategoryById(dto.CategoryId);
 
             if (category == null)
                 return NotFound("Wrong Id: " + dto.CategoryId);
@@ -97,7 +97,7 @@ namespace LibrarySystem.Controllers
             book.AvailableQuantity = dto.AvailableQuantity;
 
 
-            book =  _booksService.UpdateBook(book);
+            book =  await _booksService.UpdateBook(book);
             return Ok("Updated done successfully");
 
         }
@@ -111,7 +111,7 @@ namespace LibrarySystem.Controllers
             if (book == null)
                 return NotFound("Wrong Id: " + id);
             
-            book =   _booksService.DeleteBook(book);
+            book =  await _booksService.DeleteBook(book);
             return Ok(book);
            
 

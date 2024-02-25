@@ -13,9 +13,9 @@ namespace LibrarySystem.Services
 
         Task<Member> AddMember(Member member);
 
-        Member UpdateMember(Member member);
+        Task<Member> UpdateMember(Member member);
 
-        Member DeleteMember(Member member);
+        Task<Member> DeleteMember(Member member);
 
     }
 }
