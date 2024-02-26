@@ -1,5 +1,4 @@
 using LibrarySystem.Models;
-using LibrarySystem.Services;
 using LibrarySystem.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -12,8 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
 
-
-
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
 });
@@ -22,11 +19,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(ConnectionString));
 
-builder.Services.AddTransient<ICategoriesService, CategoriesService>();
-builder.Services.AddTransient<IBooksServices, BooksService>();
-builder.Services.AddTransient<IMemberService, MemberService>();
-builder.Services.AddTransient<IOrdersService, OrdersService>();
-builder.Services.AddTransient<IRestorationService, RestorationService>();
+
 
 ///repository pattern & unit of work 
 

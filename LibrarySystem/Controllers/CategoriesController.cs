@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using LibrarySystem.Dto;
 using Microsoft.EntityFrameworkCore;
 using LibrarySystem.Models;
-using LibrarySystem.Services;
 using LibrarySystem.UnitOfWork;
+using MediatR;
+using LibrarySystem.Queries.CategoryQueries;
+using LibrarySystem.Commands.CategoryCommands;
+
 
 namespace LibrarySystem.Controllers
 {
@@ -13,21 +16,24 @@ namespace LibrarySystem.Controllers
     public class CategoriesController : ControllerBase
     {
 
-            private readonly ICategoriesService _categoriesService;
+        private readonly IMediator _mediator;
 
-            
-        public CategoriesController(ICategoriesService categoriesService)
-            {
-            _categoriesService = categoriesService;
-            
-            }
 
-            [HttpGet]
+
+        public CategoriesController( IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        [HttpGet]
 
             public async Task<IActionResult> GetAllCategories()
             {
-            var categories = await _categoriesService.GetAllCategories();
-                return Ok(categories);
+            var query = new GetAllCategoriesQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
+
+
 
             }
 
@@ -36,13 +42,13 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetCategoriesById(int id)
         {
+            var query = new GetCategoryByIdQuery(id);
+            var result = await _mediator.Send(query);
+            if (result == null)
+                return NotFound("Wrong Id !");
 
-            var category = await _categoriesService.GetCategoryById(id);
+            return Ok(result);
 
-            if (category == null)
-                return BadRequest("Wrong Id !");
-
-            return Ok(category);
 
         }
 
@@ -50,30 +56,27 @@ namespace LibrarySystem.Controllers
             [HttpPost]
             public async Task<IActionResult> AddCategory([FromBody] CategoryDto dto)
             {
+            var category = new Category { Name = dto.Name };
 
-            
-              var category = new Category { Name = dto.Name };
-
-               await _categoriesService.AddCategory(category);
-
-            return Ok(category);
+            var command = new AddCategoryCommand(category);
+            var result = await _mediator.Send(command);
+            return Ok(result);
 
             }
 
             [HttpPut("{id}")]
             public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto dto)
             {
-
-
-
-            var category = await _categoriesService.GetCategoryById(id);
-
+            var query = new GetCategoryByIdQuery(id);
+            var category = await _mediator.Send(query);
             if (category == null)
                 return NotFound("Wrong Id !");
 
+
             category.Name = dto.Name;
-           var Category= _categoriesService.UpdateCategory(category);    
-           
+            var command = new UpdateCategoryCommand(category);
+            var result = await _mediator.Send(command);
+            
             return Ok("Updated done successfully");
 
         }
@@ -81,16 +84,15 @@ namespace LibrarySystem.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-
-            var category = await _categoriesService.GetCategoryById(id);
-
+            var query = new GetCategoryByIdQuery(id);
+            var category = await _mediator.Send(query);
             if (category == null)
                 return NotFound("Wrong Id !");
 
-
-            _categoriesService.DeleteCategory(category);
-
-            return Ok("Updated done successfully");
+            var command = new DeleteCategoryCommand(category);
+            var result = await _mediator.Send(command);
+            
+            return Ok("Deleted done successfully");
 
         }
 

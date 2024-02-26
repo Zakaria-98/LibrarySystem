@@ -1,9 +1,13 @@
 ﻿using LibrarySystem.Dto;
 using LibrarySystem.Models;
-using LibrarySystem.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
+using LibrarySystem.Queries.OrderQueries;
+using LibrarySystem.Commands.OrderCommands;
+using LibrarySystem.Queries.BookQueries;
+using LibrarySystem.Queries.MemberQueries;
 
 namespace LibrarySystem.Controllers
 {
@@ -11,16 +15,14 @@ namespace LibrarySystem.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly IMemberService _memberService;
 
-        private readonly IOrdersService _ordersService;
-        private readonly IBooksServices _booksService;
+        private readonly IMediator _mediator;
 
-        public OrdersController( IOrdersService ordersService, IMemberService memberService, IBooksServices booksService)
+
+        public OrdersController( IMediator mediator)
         {
-            _ordersService = ordersService;
-            _memberService = memberService;
-            _booksService = booksService;
+
+            _mediator = mediator;
         }
 
 
@@ -28,8 +30,10 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _ordersService.GetAllOrders();
-            return Ok(orders);
+
+            var query = new GetAllOrdersQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
         }
 
@@ -39,13 +43,13 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetOrdersByOrderId([FromQuery] int Orderid)
         {
-
-            var order = await _ordersService.GetOrdersByOrderId(Orderid);
-
-            if (order == null)
+            var query = new GetOrdersByOrderIdQuery(Orderid);
+            var result = await _mediator.Send(query);
+            if (result == null)
                 return NotFound("Wrong Id:" + Orderid);
+            return Ok(result);
 
-            return Ok(order);
+
 
         }
 
@@ -55,23 +59,20 @@ namespace LibrarySystem.Controllers
         public async Task<IActionResult> GetOrderslate()
         {
 
-            var order = await _ordersService.GetOrderslate();
+            var query = new GetOrderslateQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
-
-            return Ok(order);
         }
 
         [HttpGet("OrderbyOrderDateFilter")]
 
         public async Task<IActionResult> GetOrdersbyOrderDateFilter(DateTime date1, DateTime date2)
         {
+            var query = new GetOrdersbyOrderDateFilterQuery(date1, date2);
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
-
-            var order = await _ordersService.GetOrdersbyOrderDateFilter(date1,date2);
-
-
-            return Ok(order);
-            
 
         }
 
@@ -79,12 +80,9 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetOrdersbyRestorationDateFilter(DateTime date1, DateTime date2)
         {
-
-
-            var order = await _ordersService.GetOrdersbyRestorationDateFilter(date1, date2);
-
-
-            return Ok(order);
+            var query = new GetOrdersbyRestorationDateFilterQuery(date1, date2);
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
         }
 
@@ -93,15 +91,16 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetOrdersByMemberId([FromQuery] int MemberId)
         {
-            var member = await _memberService.GetMembersById(MemberId);
+            var memberquery = new GetMembersByIdQuery(MemberId);
+            var Member = await _mediator.Send(memberquery);
+            if (Member == null)
+                return NotFound("Wrong Id: " + MemberId);
 
-            if (member == null)
-                return NotFound("Wrong Id:" + MemberId);
+            var query = new GetOrdersByMemberIdQuery(MemberId);
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
-            var order = await _ordersService.GetOrdersByMemberId(MemberId);
-
-
-            return Ok(order);
+           
 
         }
 
@@ -111,14 +110,16 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetOrdersByBookId([FromQuery] int BookId)
         {
-            var book = await _booksService.GetBookById(BookId);
-
+            var bookquery = new GetBookByIdQuery(BookId);
+            var book = await _mediator.Send(bookquery);
             if (book == null)
-                return NotFound("Wrong Id:" + BookId);
+                return NotFound("Wrong Id: " + BookId);
 
-            var orders = await _ordersService.GetOrdersByBookId(BookId);
+            var query = new GetOrdersByBookIdQuery(BookId);
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
-            return Ok(orders);
+
 
         }
 
@@ -126,41 +127,45 @@ namespace LibrarySystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddOrder([FromQuery] OrderDto dto, [FromBody] List<ItemsDto> dto2)
         {
-
-            var member = await _memberService.GetMembersById(dto.MemberId);
-
-            if (member == null)
+            var memberquery = new GetMembersByIdQuery(dto.MemberId);
+            var Member = await _mediator.Send(memberquery);
+            if (Member == null)
                 return NotFound("Wrong Id: " + dto.MemberId);
 
-            var order = await _ordersService.AddOrder(dto, dto2);
+            var command = new AddOrderCommand(dto, dto2);
+            var result = await _mediator.Send(command);
 
-                return Ok(order);
+
+            return Ok(result);
 
         }
 
 
 
-                [HttpPut("{id}")]
-                public async Task<IActionResult> UpdateMember(int id, [FromQuery] EditOrderDto dto, [FromBody] List<ItemsDto> dto2)
-                {
-                    var order = await _ordersService.GetOrdersByOrderId(id);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMember(int id, [FromQuery] EditOrderDto dto, [FromBody] List<ItemsDto> dto2)
+        {
+            var orderquery = new GetOrdersByOrderIdQuery(id);
+            var Order = await _mediator.Send(orderquery);
+            if (Order == null)
+                return NotFound("Wrong Id:" + id);
 
-                  if (order == null)
-                         return NotFound("Wrong Id:" + id);
-                     var restoration = await _ordersService.IsOrderRestored(id);
+            var restorationcommand = new IsOrderRestoredCommands(id);
+            var restoration = await _mediator.Send(restorationcommand);
+             if (!restoration )
+                 return BadRequest("The order is restored !, you can't edit ");
 
-                   if (!restoration )
-                         return BadRequest("The order is restored !, you can't edit ");
+            var memberquery = new GetMembersByIdQuery(dto.MemberId);
+            var Member = await _mediator.Send(memberquery);
+            if (Member == null)
+                return NotFound("Wrong Id: " + dto.MemberId);
 
-            var member = await _memberService.GetMembersById(dto.MemberId);
-            if (member == null)
-                return NotFound("Wrong Id: " + dto.MemberId); 
-
-            var updateorder = await _ordersService.UpdateOrder(id,dto, dto2);
-            if (!updateorder)
+            var command = new UpdateOrderCommand(id, dto, dto2);
+            var result = await _mediator.Send(command);
+            if (!result)
                 return BadRequest(" wrong! please try again");
             else
-                return Ok("Added successfuly");
+                return Ok("Updated successfuly");
 
 
         }
@@ -171,17 +176,19 @@ namespace LibrarySystem.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var order = await _ordersService.GetOrdersByOrderId(id);
-
-            if (order == null)
+            var orderquery = new GetOrdersByOrderIdQuery(id);
+            var Order = await _mediator.Send(orderquery);
+            if (Order == null)
                 return NotFound("Wrong Id:" + id);
-            var restoration = await _ordersService.IsOrderRestored(id);
 
+            var restorationcommand = new IsOrderRestoredCommands(id);
+            var restoration = await _mediator.Send(restorationcommand);
             if (!restoration)
                 return BadRequest("The order is restored !, you can't edit ");
 
-            var Deleteorder = await _ordersService.DeleteOrder(id);
-            if (!Deleteorder)
+            var command = new DeleteOrderCommand(id);
+            var result = await _mediator.Send(command);
+            if (!result)
                 return BadRequest(" wrong! please try again");
             else
                 return Ok("Removed successfuly");

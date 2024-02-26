@@ -1,9 +1,12 @@
 ﻿using LibrarySystem.Dto;
 using LibrarySystem.Models;
-using LibrarySystem.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
+using LibrarySystem.Queries.MemberQueries;
+using LibrarySystem.Commands.MemberCommands;
+
 
 namespace LibrarySystem.Controllers
 {
@@ -11,31 +14,32 @@ namespace LibrarySystem.Controllers
     [ApiController]
     public class MembersController : ControllerBase
     {
-        private readonly IMemberService _memberService;
-        public MembersController(IMemberService memberService)
+        private readonly IMediator _mediator;
+
+        public MembersController( IMediator mediator)
         {
-            _memberService = memberService;
+            _mediator = mediator;
         }
 
         [HttpGet]
 
         public async Task<IActionResult> GetAlMembers()
         {
-            var members = await _memberService.GetAllMembers();
-            return Ok(members);
-
+            var query = new GetAllMembersQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
 
         public async Task<IActionResult> GetMembersById(int id)
         {
-            var member = await _memberService.GetMembersById(id);
-
-            if (member == null)
+            var query = new GetMembersByIdQuery(id);
+            var result = await _mediator.Send(query);
+            if (result == null)
                 return NotFound("Wrong Id: " + id);
 
-            return Ok(member);
+            return Ok(result);
 
         }
 
@@ -43,12 +47,16 @@ namespace LibrarySystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddMember([FromBody] MemberDto dto)
         {
+
             var Member = new Member
             {
                 Name = dto.Name,
             };
-            var member = _memberService.AddMember(Member);
-            return Ok(member);
+            var command = new AddMemberCommand(Member);
+            var result = await _mediator.Send(command);
+
+
+            return Ok(result);
 
 
         }
@@ -56,28 +64,35 @@ namespace LibrarySystem.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMember(int id, [FromBody] MemberDto dto)
         {
-            var Member = await _memberService.GetMembersById(id);
-
+            var memberquery = new GetMembersByIdQuery(id);
+            var Member = await _mediator.Send(memberquery);
             if (Member == null)
                 return NotFound("Wrong Id: " + id);
 
             Member.Name = dto.Name;
+            var command = new UpdateMemberCommand(Member);
+            var result = await _mediator.Send(command);
 
-           var member= _memberService.UpdateMember(Member);
-            return Ok(member);
+
+            return Ok("Updated done successfully");
+
+
 
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteMember(int id)
         {
-            var Member = await _memberService.GetMembersById(id);
-
+            var memberquery = new GetMembersByIdQuery(id);
+            var Member = await _mediator.Send(memberquery);
             if (Member == null)
                 return NotFound("Wrong Id: " + id);
 
-           var  member =   _memberService.DeleteMember(Member);
-            return Ok(member);
+            var command = new DeleteMemberCommand(Member);
+            var result = await _mediator.Send(command);
+
+
+            return Ok("Deleted done successfully");
 
         }
     }

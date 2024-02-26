@@ -3,7 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LibrarySystem.Dto;
-using LibrarySystem.Services;
+using MediatR;
+using LibrarySystem.Queries.BookQueries;
+using LibrarySystem.Commands.BookCommands;
+using LibrarySystem.Queries.CategoryQueries;
+using LibrarySystem.Commands.CategoryCommands;
+
+
 
 namespace LibrarySystem.Controllers
 {
@@ -11,21 +17,23 @@ namespace LibrarySystem.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly IBooksServices _booksService;
-        private readonly ICategoriesService _categoriesService;
+       
+        private readonly IMediator _mediator;
 
-        public BooksController(IBooksServices booksService, ICategoriesService categoriesService)
+
+        public BooksController( IMediator mediator)
         {
-            _booksService = booksService;
-            _categoriesService = categoriesService;
+
+            _mediator = mediator;
         }
 
         [HttpGet]
 
         public async Task<IActionResult> GetAllBooks()
         {
-            var books = await _booksService.GetAllBooks();
-            return Ok(books);
+            var query = new GetAllBooksQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
         }
 
@@ -33,14 +41,13 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetBookById(int id)
         {
-
-
-            var book = await _booksService.GetBookById(id);
-
-            if (book == null)
+            var query = new GetBookByIdQuery(id);
+            var result = await _mediator.Send(query);
+            if (result == null)
                 return NotFound("Wrong Id: " + id);
 
-            return Ok(book);
+            return Ok(result);
+
 
         }
 
@@ -48,13 +55,19 @@ namespace LibrarySystem.Controllers
 
         public async Task<IActionResult> GetBooksByCategory(int Categoryid)
         {
-            var category = await _categoriesService.GetCategoryById(Categoryid);
+            var categoryquery = new GetCategoryByIdQuery(Categoryid);
+            var categoryresult = await _mediator.Send(categoryquery);
+            if (categoryresult == null)
+                return NotFound("Wrong Id !");
 
-            if (category == null)
-                return NotFound("Wrong Id: " + Categoryid);
-            
-                var books = await _booksService.GetBooksByCategory(Categoryid);
-            return Ok(books);
+
+            var query = new GetBooksByCategoryQuery(Categoryid);
+            var result = await _mediator.Send(query);
+
+
+            return Ok(result);
+
+
 
 
         }
@@ -69,10 +82,11 @@ namespace LibrarySystem.Controllers
             
             };
 
-           var book= await _booksService.AddBook(Book);
+            var command = new AddBookCommand(Book);
+            var result = await _mediator.Send(command);
 
-            return Ok(book);
 
+            return Ok(result);
 
 
         }
@@ -80,25 +94,29 @@ namespace LibrarySystem.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBook(int id, [FromBody] EditBookDto dto)
         {
-            var book = await _booksService.GetBookById(id);
+            var categoryquery = new GetCategoryByIdQuery(dto.CategoryId);
+            var categoryresult = await _mediator.Send(categoryquery);
+            if (categoryresult == null)
+                return NotFound("Wrong Id !");
 
+            var bookquery = new GetBookByIdQuery(id);
+            var book = await _mediator.Send(bookquery);
             if (book == null)
                 return NotFound("Wrong Id: " + id);
 
-            var category = await _categoriesService.GetCategoryById(dto.CategoryId);
-
-            if (category == null)
-                return NotFound("Wrong Id: " + dto.CategoryId);
-
-
-             book.Title=dto.Title;
-            book.CategoryId=dto.CategoryId;
-            book.AllQuantity=dto.AllQuantity;
+            book.Title = dto.Title;
+            book.CategoryId = dto.CategoryId;
+            book.AllQuantity = dto.AllQuantity;
             book.AvailableQuantity = dto.AvailableQuantity;
 
 
-            book =  await _booksService.UpdateBook(book);
+            var command = new UpdateBookCommand(book);
+            var result = await _mediator.Send(command);
+
+
             return Ok("Updated done successfully");
+
+
 
         }
 
@@ -106,14 +124,18 @@ namespace LibrarySystem.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            var book = await _booksService.GetBookById(id);
-
+            var bookquery = new GetBookByIdQuery(id);
+            var book = await _mediator.Send(bookquery);
             if (book == null)
                 return NotFound("Wrong Id: " + id);
-            
-            book =  await _booksService.DeleteBook(book);
-            return Ok(book);
-           
+
+            var command = new DeleteBookCommand(book);
+            var result = await _mediator.Send(command);
+
+
+            return Ok("Deleted done successfully");
+
+
 
         }
 

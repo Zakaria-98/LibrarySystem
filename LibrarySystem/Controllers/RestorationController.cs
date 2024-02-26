@@ -1,9 +1,11 @@
 ﻿using LibrarySystem.Dto;
 using LibrarySystem.Models;
-using LibrarySystem.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
+using LibrarySystem.Queries.RestorationQuiries;
+using LibrarySystem.Commands.RestorationCommands;
 
 namespace LibrarySystem.Controllers
 {
@@ -12,30 +14,34 @@ namespace LibrarySystem.Controllers
     public class RestorationController : ControllerBase
     {
         private ApplicationDbContext _context;
-        private readonly IRestorationService _restorationService;
-        public RestorationController(ApplicationDbContext context , IRestorationService restorationService)
+        private readonly IMediator _mediator;
+
+        public RestorationController(ApplicationDbContext context ,  IMediator mediator)
         {
             _context = context;
-            _restorationService = restorationService;
+            _mediator = mediator;
         }
 
         [HttpGet]
 
         public async Task<IActionResult> GetAllRestorations()
         {
-            var restorations = await _restorationService.GetAllRestorations();
-            return Ok(restorations);
+            var query = new GetAllRestorationsQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
 
         }
 
         [HttpPost("{id}")]
         public async Task<IActionResult> AddRestoration(int id)
         {
-            var restoration = await _restorationService.AddRestoration(id);
-            if(restoration == false)
-                return Ok(" Restoration  wrong! please try again");
+            var command = new AddRestorationCommand(id);
+            var result = await _mediator.Send(command);
+            if (result == false)
+                return BadRequest(" Restoration  wrong! please try again");
 
             return Ok(" Restoration done successfully");
+
 
         }
 
@@ -43,12 +49,14 @@ namespace LibrarySystem.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteRestoration(int id)
         {
-
-            var restoration = await _restorationService.DeleteRestoration(id);
-            if (restoration == false)
-                return Ok(" Restoration delete wrong! please try again");
+            var command = new DeleteRestorationCommand(id);
+            var result = await _mediator.Send(command);
+            if (result == false)
+                return BadRequest(" Restoration  wrong! please try again");
 
             return Ok(" Restoration done successfully");
+
+
         }
 
 
