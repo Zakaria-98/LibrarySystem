@@ -16,7 +16,9 @@ namespace LibrarySystem.Handlers.Commands.CategoryCommands
 
         public async Task<Category> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
         {
-            var result = await _unitofwork.Categories.AddAsync(request.category);
+            var category = new Category(request);
+
+            var result = await _unitofwork.Categories.AddAsync(category);
             _unitofwork.Complete();
             return result;
         }

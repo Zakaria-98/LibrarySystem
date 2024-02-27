@@ -17,6 +17,10 @@ namespace LibrarySystem.Handlers.Queries.BookQueries
         public async Task<IEnumerable<Book>> Handle(GetBooksByCategoryQuery request, CancellationToken cancellationToken)
         {
 
+            var category = await _unitofwork.Categories.GetByIdAsync(request.Categoryid);
+            if (category == null)
+                return null;
+
             var books = await _unitofwork.Books.GetListAsync(c => c.CategoryId == request.Categoryid,
             g => new Book
             {

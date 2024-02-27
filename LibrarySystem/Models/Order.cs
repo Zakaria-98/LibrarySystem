@@ -1,4 +1,5 @@
-﻿using LibrarySystem.Dto;
+﻿using LibrarySystem.Commands.OrderCommands;
+using LibrarySystem.Dto;
 using System.ComponentModel.DataAnnotations;
 
 namespace LibrarySystem.Models
@@ -22,6 +23,13 @@ namespace LibrarySystem.Models
         public int? RestorationId { get; set; }
 
         public Restoration Restoration { get; set; }
+
+        public Order()
+        {
+
+        }
+
+
 
         internal Task Select(OrdersOutputDto ordersOutputDto)
         {

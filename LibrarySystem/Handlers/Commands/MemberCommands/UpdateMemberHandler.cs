@@ -16,10 +16,12 @@ namespace LibrarySystem.Handlers.Commands.MemberCommands
 
         public async Task<Member> Handle(UpdateMemberCommand request, CancellationToken cancellationToken)
         {
-            _unitofwork.Members.Update(request.member);
+
+            var member = new Member(request);
+            _unitofwork.Members.Update(member);
             _unitofwork.Complete();
 
-            return request.member;
+            return  member;
         }
     }
 }

@@ -4,12 +4,11 @@ namespace LibrarySystem.Commands.BookCommands
 {
     public class AddBookCommand : IRequest<Book>
     {
-        public Book book;
+        public string Title { get; set; }
+        public int AllQuantity { get; set; }
 
-        public AddBookCommand(Book book)
-        {
-            this.book = book;
+        public int CategoryId { get; set; }
 
-        }
+
     }
 }

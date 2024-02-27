@@ -17,6 +17,11 @@ namespace LibrarySystem.Handlers.Queries.OrderQueries
 
         public async Task<IEnumerable<DisplayOutput>> Handle(GetOrdersByMemberIdQuery request, CancellationToken cancellationToken)
         {
+            var Member = await _unitofwork.Members.GetByIdAsync(request.MemberId);
+            if (Member == null)
+                return null;
+
+
             var orders = await _unitofwork.Orders.GetListAsync(
                 o => o.MemberId == request.MemberId,
                 o => new DisplayOutput

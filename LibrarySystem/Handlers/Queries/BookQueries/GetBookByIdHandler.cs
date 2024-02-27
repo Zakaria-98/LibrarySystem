@@ -17,11 +17,12 @@ namespace LibrarySystem.Handlers.Queries.BookQueries
         public async Task<Book> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
 
-            var Book = await _unitofwork.Books.GetByIdAsync(request.Id);
-            if (Book == null)
+                var Book = await _unitofwork.Books.GetByIdAsync(request.Id);
+                if (Book == null)
                 return null;
+                   
+                return Book;
 
-            return Book;
         }
     }
 }

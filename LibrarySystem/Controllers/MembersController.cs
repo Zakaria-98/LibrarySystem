@@ -45,14 +45,11 @@ namespace LibrarySystem.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddMember([FromBody] MemberDto dto)
+        public async Task<IActionResult> AddMember([FromBody] AddMemberCommand addMemberCommand)
         {
 
-            var Member = new Member
-            {
-                Name = dto.Name,
-            };
-            var command = new AddMemberCommand(Member);
+            
+            var command = addMemberCommand;
             var result = await _mediator.Send(command);
 
 
@@ -62,35 +59,27 @@ namespace LibrarySystem.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMember(int id, [FromBody] MemberDto dto)
+        public async Task<IActionResult> UpdateMember(int id, [FromBody] UpdateMemberCommand updateMemberCommand)
         {
             var memberquery = new GetMembersByIdQuery(id);
             var Member = await _mediator.Send(memberquery);
             if (Member == null)
                 return NotFound("Wrong Id: " + id);
 
-            Member.Name = dto.Name;
-            var command = new UpdateMemberCommand(Member);
+            var command = updateMemberCommand;
             var result = await _mediator.Send(command);
 
 
             return Ok("Updated done successfully");
-
-
 
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteMember(int id)
         {
-            var memberquery = new GetMembersByIdQuery(id);
-            var Member = await _mediator.Send(memberquery);
-            if (Member == null)
-                return NotFound("Wrong Id: " + id);
 
-            var command = new DeleteMemberCommand(Member);
+            var command = new DeleteMemberCommand(id);
             var result = await _mediator.Send(command);
-
 
             return Ok("Deleted done successfully");
 

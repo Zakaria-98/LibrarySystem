@@ -17,10 +17,11 @@ namespace LibrarySystem.Handlers.Commands.CategoryCommands
         public async Task<Category> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
 
-            _unitofwork.Categories.Update(request.category);
+            var category = new Category(request);
+            _unitofwork.Categories.Update(category);
             _unitofwork.Complete();
 
-            return request.category;
+            return category;
         }
     }
 }

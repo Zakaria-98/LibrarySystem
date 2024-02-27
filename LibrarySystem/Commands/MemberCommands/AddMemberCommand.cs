@@ -5,12 +5,7 @@ namespace LibrarySystem.Commands.MemberCommands
 {
     public class AddMemberCommand : IRequest<Member>
     {
-        public Member member;
+        public string Name { get; set; }
 
-        public AddMemberCommand(Member member)
-        {
-            this.member = member;
-
-        }
     }
 }

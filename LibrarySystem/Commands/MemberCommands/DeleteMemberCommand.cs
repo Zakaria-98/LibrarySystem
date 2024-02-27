@@ -5,11 +5,11 @@ namespace LibrarySystem.Commands.MemberCommands
 {
     public class DeleteMemberCommand : IRequest<Member>
     {
-        public Member member;
+        public int Id;
 
-        public DeleteMemberCommand(Member member)
+        public DeleteMemberCommand(int id)
         {
-            this.member = member;
+            this.Id = id;
 
         }
     }

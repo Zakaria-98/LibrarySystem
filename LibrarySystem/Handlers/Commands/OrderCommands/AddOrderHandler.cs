@@ -18,11 +18,16 @@ namespace LibrarySystem.Handlers.Commands.OrderCommands
         {
             try
             {
+
+                var Member = await _unitofwork.Members.GetByIdAsync(request.MemberId);
+                if (Member == null)
+                    throw new Exception("wrong Id ");
+
                 var order = new Order
                 {
                     OrderDate = DateTime.Now,
                     RestorationDate = DateTime.Now.AddDays(7),
-                    MemberId = request.OrderDto.MemberId,
+                    MemberId = request.MemberId,
                 };
 
                 order.Items = new List<Item>();

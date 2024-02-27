@@ -17,6 +17,10 @@ namespace LibrarySystem.Handlers.Queries.OrderQueries
 
         public async Task<IEnumerable<DisplayOutput>> Handle(GetOrdersByBookIdQuery request, CancellationToken cancellationToken)
         {
+            var Book = await _unitofwork.Books.GetByIdAsync(request.BookId);
+            if (Book == null)
+                return null;
+
             var orders = await _unitofwork.Items.GetListAsync(
                o => o.BookId == request.BookId,
                 o => new DisplayOutput

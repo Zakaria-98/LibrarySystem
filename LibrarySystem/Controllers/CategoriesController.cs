@@ -54,27 +54,25 @@ namespace LibrarySystem.Controllers
 
 
             [HttpPost]
-            public async Task<IActionResult> AddCategory([FromBody] CategoryDto dto)
+            public async Task<IActionResult> AddCategory([FromBody] AddCategoryCommand addCategoryCommand)
             {
-            var category = new Category { Name = dto.Name };
 
-            var command = new AddCategoryCommand(category);
+            var command = addCategoryCommand;
             var result = await _mediator.Send(command);
             return Ok(result);
 
             }
 
             [HttpPut("{id}")]
-            public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto dto)
+            public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryCommand updateCategoryCommand)
             {
             var query = new GetCategoryByIdQuery(id);
-            var category = await _mediator.Send(query);
-            if (category == null)
+            var categoryresult = await _mediator.Send(query);
+            if (categoryresult == null)
                 return NotFound("Wrong Id !");
 
-
-            category.Name = dto.Name;
-            var command = new UpdateCategoryCommand(category);
+            var category = updateCategoryCommand;
+            var command = new UpdateCategoryCommand();
             var result = await _mediator.Send(command);
             
             return Ok("Updated done successfully");
@@ -89,7 +87,7 @@ namespace LibrarySystem.Controllers
             if (category == null)
                 return NotFound("Wrong Id !");
 
-            var command = new DeleteCategoryCommand(category);
+            var command = new DeleteCategoryCommand(id);
             var result = await _mediator.Send(command);
             
             return Ok("Deleted done successfully");

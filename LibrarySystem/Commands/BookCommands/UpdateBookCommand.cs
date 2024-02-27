@@ -4,12 +4,12 @@ namespace LibrarySystem.Commands.BookCommands
 {
     public class UpdateBookCommand : IRequest<Book>
     {
-        public Book book;
+        public string Title { get; set; }
+        public int AllQuantity { get; set; }
 
-        public UpdateBookCommand(Book book)
-        {
-            this.book = book;
+        public int AvailableQuantity { get; set; }
 
-        }
+        public int CategoryId { get; set; }
+
     }
 }

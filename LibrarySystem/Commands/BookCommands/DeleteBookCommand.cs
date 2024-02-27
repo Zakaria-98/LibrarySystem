@@ -4,11 +4,11 @@ namespace LibrarySystem.Commands.BookCommands
 {
     public class DeleteBookCommand : IRequest<Book>
     {
-        public Book book;
+        public int Id;
 
-        public DeleteBookCommand(Book book)
+        public DeleteBookCommand(int id)
         {
-            this.book = book;
+            Id = id;
 
         }
     }

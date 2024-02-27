@@ -5,12 +5,7 @@ namespace LibrarySystem.Commands.CategoryCommands
 {
     public class UpdateCategoryCommand:IRequest<Category>
     {
-        public Category category;
+        public string Name { get; set; }
 
-        public UpdateCategoryCommand(Category category)
-        {
-            this.category = category;
-
-        }
     }
 }

@@ -16,10 +16,15 @@ namespace LibrarySystem.Handlers.Commands.MemberCommands
 
         public async Task<Member> Handle(DeleteMemberCommand request, CancellationToken cancellationToken)
         {
-            _unitofwork.Members.Delete(request.member);
+            var Member = await _unitofwork.Members.GetByIdAsync(request.Id);
+            if (Member == null)
+                return null;
+
+
+            _unitofwork.Members.Delete(Member);
             _unitofwork.Complete();
 
-            return request.member;
+            return Member;
         }
     }
 }

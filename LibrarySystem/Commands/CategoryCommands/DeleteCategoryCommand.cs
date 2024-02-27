@@ -6,11 +6,12 @@ namespace LibrarySystem.Commands.CategoryCommands
     public class DeleteCategoryCommand: IRequest<Category>
     {
 
-        public Category category;
+        public int Id;
 
-        public DeleteCategoryCommand(Category category)
+        public DeleteCategoryCommand(int id)
         {
-            this.category = category;
+            this.Id = id;
+
 
         }
     }

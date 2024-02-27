@@ -16,11 +16,10 @@ namespace LibrarySystem.Handlers.Commands.BookCommands
 
         public async Task<Book> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
-
-            var Book = await _unitofwork.Books.AddAsync(request.book);
-            Book.AvailableQuantity = Book.AllQuantity;
+            var book = new Book(request);
+            var Book = await _unitofwork.Books.AddAsync(book);
             _unitofwork.Complete();
-            return request.book;
+            return book;
         }
     }
 }

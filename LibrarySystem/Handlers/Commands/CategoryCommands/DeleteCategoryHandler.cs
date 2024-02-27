@@ -17,10 +17,14 @@ namespace LibrarySystem.Handlers.Commands.CategoryCommands
 
         public async Task<Category> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
-            _unitofwork.Categories.Delete(request.category);
+            var category = await _unitofwork.Categories.GetByIdAsync(request.Id);
+            if (category == null)
+                return null;
+
+            _unitofwork.Categories.Delete(category);
             _unitofwork.Complete();
 
-            return request.category;
+            return category;
         }
     }
 }
