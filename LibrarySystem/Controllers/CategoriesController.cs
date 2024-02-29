@@ -63,18 +63,15 @@ namespace LibrarySystem.Controllers
 
             }
 
-            [HttpPut("{id}")]
-            public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryCommand updateCategoryCommand)
+            [HttpPut]
+            public async Task<IActionResult> UpdateCategory( [FromBody] UpdateCategoryCommand updateCategoryCommand)
             {
-            var query = new GetCategoryByIdQuery(id);
-            var categoryresult = await _mediator.Send(query);
-            if (categoryresult == null)
-                return NotFound("Wrong Id !");
 
-            var category = updateCategoryCommand;
-            var command = new UpdateCategoryCommand();
+            var command = updateCategoryCommand;
             var result = await _mediator.Send(command);
-            
+            if (result == null)
+                return NotFound("Wrong Id: ");
+
             return Ok("Updated done successfully");
 
         }

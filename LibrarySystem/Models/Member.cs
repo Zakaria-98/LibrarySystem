@@ -20,7 +20,8 @@ namespace LibrarySystem.Models
 
         public Member(UpdateMemberCommand updateMemberCommand)
         {
-            this.Name = updateMemberCommand.Name;   
+            this.Name = updateMemberCommand.Name;
+            
 
         }
     }

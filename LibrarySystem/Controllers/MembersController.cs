@@ -58,17 +58,13 @@ namespace LibrarySystem.Controllers
 
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMember(int id, [FromBody] UpdateMemberCommand updateMemberCommand)
+        [HttpPut]
+        public async Task<IActionResult> UpdateMember( UpdateMemberCommand updateMemberCommand)
         {
-            var memberquery = new GetMembersByIdQuery(id);
-            var Member = await _mediator.Send(memberquery);
-            if (Member == null)
-                return NotFound("Wrong Id: " + id);
-
             var command = updateMemberCommand;
             var result = await _mediator.Send(command);
-
+            if (result == null)
+                return NotFound("Wrong Id: ");
 
             return Ok("Updated done successfully");
 

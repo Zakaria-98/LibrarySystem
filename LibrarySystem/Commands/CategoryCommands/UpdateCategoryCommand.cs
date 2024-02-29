@@ -7,5 +7,7 @@ namespace LibrarySystem.Commands.CategoryCommands
     {
         public string Name { get; set; }
 
+        public int Id { get; set; }
+
     }
 }

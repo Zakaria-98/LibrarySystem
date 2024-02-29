@@ -16,8 +16,11 @@ namespace LibrarySystem.Handlers.Commands.MemberCommands
 
         public async Task<Member> Handle(UpdateMemberCommand request, CancellationToken cancellationToken)
         {
+            var member = await _unitofwork.Members.GetByIdAsync(request.Id);
+            if (member == null)
+                return null;
 
-            var member = new Member(request);
+            member.Name = request.Name;
             _unitofwork.Members.Update(member);
             _unitofwork.Complete();
 

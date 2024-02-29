@@ -10,12 +10,10 @@ namespace LibrarySystem.UnitOfWork
         public IBaseRepository<Book> Books { get; set; }
 
         public IBaseRepository<Member> Members { get; set; }
-        public IBaseRepository<Order> Orders { get; set; }
+        public IOrderRepository  Orders { get; set; }
 
-        public IBaseRepository<Restoration> Restorations { get; set; }
+        public IRestorationRepository Restorations { get; set; }
         public IBaseRepository<Item> Items { get; set; }
-
-
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -24,8 +22,8 @@ namespace LibrarySystem.UnitOfWork
             Categories = new BaseRepository<Category>(_context);
             Books = new BaseRepository<Book>(_context);
             Members = new BaseRepository<Member>(_context);
-            Orders = new BaseRepository<Order>(_context);
-            Restorations = new BaseRepository<Restoration>(_context);
+            Orders = new OrderRepository(_context);
+            Restorations = new RestorationRepository(_context);
             Items = new BaseRepository<Item>(_context);
 
 

@@ -21,17 +21,7 @@ namespace LibrarySystem.Handlers.Queries.BookQueries
             if (category == null)
                 return null;
 
-            var books = await _unitofwork.Books.GetListAsync(c => c.CategoryId == request.Categoryid,
-            g => new Book
-            {
-                Id = g.Id,
-                Title = g.Title,
-                CategoryId = g.CategoryId,
-                AllQuantity = g.AllQuantity,
-                AvailableQuantity = g.AvailableQuantity
-
-
-            });
+            var books = await _unitofwork.Books.GetListAsync(c => c.CategoryId == request.Categoryid);
 
             return books;
         }

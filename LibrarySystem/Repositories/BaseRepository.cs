@@ -56,6 +56,14 @@ namespace LibrarySystem.Repositories
             return result;
         }
 
+        public async Task<IEnumerable<T>> GetListAsync(Expression<Func<T, bool>> where) 
+        {
+            var result = await _context.Set<T>().Where(where).ToListAsync();
+            if (result == null)
+                return null;
+
+            return result;
+        }
 
 
         public async Task<IEnumerable<TType>> GetListAsync<TType>(Expression<Func<T, bool>> where, Expression<Func<T, TType>> select) where TType : class

@@ -17,24 +17,9 @@ namespace LibrarySystem.Handlers.Queries.OrderQueries
 
         public async Task<IEnumerable<DisplayOutput>> Handle(GetOrderslateQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _unitofwork.Orders.GetListAsync(
-                o => (DateTime.Compare(o.RestorationDate, DateTime.Now) < 0 && o.Restoration.RestorationDate == null),
-                o => new DisplayOutput
-                {
-                    Id = o.Id,
-                    MemberId = o.MemberId,
-                    MemberName = o.Member.Name,
-                    OrderDate = o.OrderDate,
-                    RestorationBeforeDate = o.RestorationDate,
-                    RestorationDate = o.Restoration.RestorationDate,
-                    Items = o.Items.Select(i => new OrderItemsOutputDto
-                    {
-                        BookId = i.BookId,
-                        BookName = i.Book.Title,
-                        BookQuantity = i.BookQuantity
-                    }).ToList()
-                });
-
+            var orders = await _unitofwork.Orders.GetListOrdersAsync(
+                o => (DateTime.Compare(o.RestorationDate, DateTime.Now) < 0 
+                && o.Restoration.RestorationDate == null));
 
 
 

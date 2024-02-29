@@ -76,27 +76,14 @@ namespace LibrarySystem.Controllers
 
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBook(int id, [FromBody] UpdateBookCommand updateBookCommand)
+        [HttpPut]
+        public async Task<IActionResult> UpdateBook( [FromBody] UpdateBookCommand updateBookCommand)
         {
-
-
-            var bookquery = new GetBookByIdQuery(id);
-            var bookresult = await _mediator.Send(bookquery);
-            if (bookresult == null)
-                return NotFound("Wrong Id: " + id);
-
-
             var command = updateBookCommand;
             var result = await _mediator.Send(command);
             if(result==null)
-                return NotFound("Wrong Id: " + id);
-
-
-
+                return NotFound("Wrong Id: " );
             return Ok("Updated done successfully");
-
-
 
         }
 

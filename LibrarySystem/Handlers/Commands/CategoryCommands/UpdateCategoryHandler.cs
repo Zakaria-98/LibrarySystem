@@ -16,6 +16,9 @@ namespace LibrarySystem.Handlers.Commands.CategoryCommands
 
         public async Task<Category> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
+            var Category = await _unitofwork.Categories.GetByIdAsync(request.Id);
+            if (Category == null)
+                return null;
 
             var category = new Category(request);
             _unitofwork.Categories.Update(category);

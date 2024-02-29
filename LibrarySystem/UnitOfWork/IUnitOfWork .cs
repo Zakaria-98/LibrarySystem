@@ -8,8 +8,8 @@ namespace LibrarySystem.UnitOfWork
         IBaseRepository<Category> Categories { get; set; }
         IBaseRepository<Book> Books { get; set; }
         IBaseRepository<Member> Members { get; set; }
-        IBaseRepository<Order> Orders { get; set; }
-        IBaseRepository<Restoration> Restorations { get; set; }
+        IOrderRepository Orders { get; set; }
+        IRestorationRepository Restorations { get; set; }
         IBaseRepository<Item> Items { get; set; }
 
 

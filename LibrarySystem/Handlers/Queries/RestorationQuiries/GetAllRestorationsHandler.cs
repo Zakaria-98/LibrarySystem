@@ -17,13 +17,7 @@ namespace LibrarySystem.Handlers.Queries.RestorationQuiries
 
         public async Task<IEnumerable<RestorationOutputDto>> Handle(GetAllRestorationsQuery request, CancellationToken cancellationToken)
         {
-            var restorations = await _unitofwork.Restorations.GetAllAsync((o => new RestorationOutputDto
-            {
-                Id = o.Id,
-                RestorationDate = o.RestorationDate,
-                OrderId = o.Order.Id
-
-            }));
+            var restorations = await _unitofwork.Restorations.GetAllRestorationsAsync();
 
             return restorations;
         }

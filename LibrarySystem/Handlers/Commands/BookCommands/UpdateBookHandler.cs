@@ -16,6 +16,10 @@ namespace LibrarySystem.Handlers.Commands.BookCommands
 
         public async Task<Book> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
+            var Book = await _unitofwork.Books.GetByIdAsync(request.Id);
+            if (Book == null)
+                return null;
+
             var category = await _unitofwork.Categories.GetByIdAsync(request.CategoryId);
             if (category == null)
                 return null;

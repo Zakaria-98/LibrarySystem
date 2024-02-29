@@ -13,7 +13,7 @@ namespace LibrarySystem.Repositories
 
         Task<TType> GetByIdAsync<TType>(Expression<Func<T, bool>> where, Expression<Func<T, TType>> select) where TType : class;
 
-
+        Task<IEnumerable<T>> GetListAsync(Expression<Func<T, bool>> where);
         Task<IEnumerable<TType>> GetListAsync<TType>(Expression<Func<T, bool>> where, Expression<Func<T, TType>> select) where TType : class;
 
         Task<T> AddAsync(T entity);
