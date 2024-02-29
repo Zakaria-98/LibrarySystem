@@ -21,23 +21,7 @@ namespace LibrarySystem.Handlers.Queries.OrderQueries
             if (Book == null)
                 return null;
 
-            var orders = await _unitofwork.Items.GetListAsync(
-               o => o.BookId == request.BookId,
-                o => new DisplayOutput
-                {
-                    Id = o.Order.Id,
-                    MemberName = o.Order.Member.Name,
-                    OrderDate = o.Order.OrderDate,
-                    RestorationBeforeDate = o.Order.RestorationDate,
-                    RestorationDate = o.Order.Restoration.RestorationDate,
-                    Items = o.Order.Items.Select(i => new OrderItemsOutputDto
-                    {
-                        BookId = i.BookId,
-                        BookName = i.Book.Title,
-                        BookQuantity = i.BookQuantity
-                    }).ToList()
-
-                });
+            var orders = await _unitofwork.Items.GetListOrdersAsync(o => o.BookId == request.BookId);
 
 
             return orders;

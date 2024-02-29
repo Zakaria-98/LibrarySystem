@@ -10,7 +10,7 @@ namespace LibrarySystem.UnitOfWork
         IBaseRepository<Member> Members { get; set; }
         IOrderRepository Orders { get; set; }
         IRestorationRepository Restorations { get; set; }
-        IBaseRepository<Item> Items { get; set; }
+        IItemRepository Items { get; set; }
 
 
 

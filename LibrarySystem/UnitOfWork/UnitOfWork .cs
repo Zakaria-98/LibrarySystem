@@ -13,7 +13,7 @@ namespace LibrarySystem.UnitOfWork
         public IOrderRepository  Orders { get; set; }
 
         public IRestorationRepository Restorations { get; set; }
-        public IBaseRepository<Item> Items { get; set; }
+        public IItemRepository Items { get; set; }
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -24,7 +24,7 @@ namespace LibrarySystem.UnitOfWork
             Members = new BaseRepository<Member>(_context);
             Orders = new OrderRepository(_context);
             Restorations = new RestorationRepository(_context);
-            Items = new BaseRepository<Item>(_context);
+            Items = new ItemRepository(_context);
 
 
 
