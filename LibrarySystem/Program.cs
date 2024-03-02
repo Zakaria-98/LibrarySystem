@@ -1,6 +1,7 @@
 using LibrarySystem.Models;
 using LibrarySystem.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
+
 // Add services to the container.
 var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(ConnectionString));
@@ -28,6 +30,10 @@ builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 //
 builder.Services.AddMediatR(o => o.RegisterServicesFromAssemblyContaining<Program>());
 
+
+var assemblies = Assembly.Load("LibrarySystem.Application");
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies));
 
 
 builder.Services.AddControllers();

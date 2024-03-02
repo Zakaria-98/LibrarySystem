@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using LibrarySystem.Dto;
 using Microsoft.EntityFrameworkCore;
-using LibrarySystem.Models;
-using LibrarySystem.UnitOfWork;
 using MediatR;
 using LibrarySystem.Queries.CategoryQueries;
 using LibrarySystem.Commands.CategoryCommands;
