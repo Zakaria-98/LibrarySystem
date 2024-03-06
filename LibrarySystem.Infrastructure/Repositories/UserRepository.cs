@@ -1,7 +1,12 @@
-﻿using LibrarySystem.Core.Commands.AuthCommands;
+﻿using LibrarySystem.Core.Commands.UserCommands;
 using LibrarySystem.Core.Dto;
 using LibrarySystem.Core.Models;
+using LibrarySystem.Core.Repositories;
+using LibrarySystem.Infrastructure.Helpers;
+using LibrarySystem.Models;
+using LibrarySystem.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -10,21 +15,27 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-namespace LibrarySystem.Core.Services
+
+namespace LibrarySystem.Infrastructure.Repositories
 {
-    public class AuthServices
+    public class UserRepository : BaseRepository<User>, IUserRepository
     {
-        /* private readonly UserManager<User> _userManager;
+        private ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _rolemanager;
 
         private readonly JWT _jwt;
-
-        public AuthServices(UserManager<User> usermanager, RoleManager<IdentityRole> rolemanager, IOptions<JWT> jwt)
+        public UserRepository(ApplicationDbContext context, UserManager<User> usermanager, RoleManager<IdentityRole> rolemanager, IOptions<JWT> jwt) : base(context)
         {
+            _context = context;
             _userManager = usermanager;
             _rolemanager = rolemanager;
             _jwt = jwt.Value;
+
         }
+
+
+
 
         public async Task<AuthDto> RegisterAsync(RegisterCommand model)
         {
@@ -68,6 +79,31 @@ namespace LibrarySystem.Core.Services
             };
         }
 
+        public async Task<AuthDto> LoginAsync(LoginCommand model)
+        {
+            var AuthDto = new AuthDto();
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user is null || !await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                AuthDto.Message = "Email or Password is incorrect!";
+                return AuthDto;
+            }
+
+            var jwtSecurityToken = await CreateJwtToken(user);
+            var rolesList = await _userManager.GetRolesAsync(user);
+
+            AuthDto.IsAuthenticated = true;
+            AuthDto.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            AuthDto.Email = user.Email;
+            AuthDto.Username = user.UserName;
+            AuthDto.ExpiresOn = jwtSecurityToken.ValidTo;
+            AuthDto.Roles = rolesList.ToList();
+
+            return AuthDto;
+        }
+
         private async Task<JwtSecurityToken> CreateJwtToken(User user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
@@ -99,7 +135,6 @@ namespace LibrarySystem.Core.Services
 
             return jwtSecurityToken;
         }
-        */
 
 
     }

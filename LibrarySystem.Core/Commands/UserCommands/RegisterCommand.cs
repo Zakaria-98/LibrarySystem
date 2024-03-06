@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibrarySystem.Core.Commands.AuthCommands
+namespace LibrarySystem.Core.Commands.UserCommands
 {
     public class RegisterCommand : IRequest<AuthDto>
     {

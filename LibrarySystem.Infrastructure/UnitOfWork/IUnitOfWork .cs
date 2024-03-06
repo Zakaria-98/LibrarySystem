@@ -1,4 +1,5 @@
-﻿using LibrarySystem.Models;
+﻿using LibrarySystem.Core.Repositories;
+using LibrarySystem.Models;
 using LibrarySystem.Repositories;
 
 namespace LibrarySystem.UnitOfWork
@@ -12,6 +13,7 @@ namespace LibrarySystem.UnitOfWork
         IRestorationRepository Restorations { get; set; }
         IItemRepository Items { get; set; }
 
+        IUserRepository Users { get; set; }
 
 
 

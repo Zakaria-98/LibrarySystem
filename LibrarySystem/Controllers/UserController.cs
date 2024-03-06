@@ -1,4 +1,4 @@
-﻿using LibrarySystem.Core.Commands.AuthCommands;
+﻿using LibrarySystem.Core.Commands.UserCommands;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,14 +7,14 @@ namespace LibrarySystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class UserController : ControllerBase
     {
 
         private readonly IMediator _mediator;
 
 
 
-        public AuthController(IMediator mediator)
+        public UserController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -29,6 +29,23 @@ namespace LibrarySystem.Controllers
             var command = model;
             var result = await _mediator.Send(command);
            
+            if (!result.IsAuthenticated)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+
+        }
+
+        [HttpPost("login")]
+
+        public async Task<IActionResult> LoginUser([FromBody] LoginCommand model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var query = model;
+            var result = await _mediator.Send(query);
+
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
 
