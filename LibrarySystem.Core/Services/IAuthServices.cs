@@ -10,7 +10,7 @@ namespace LibrarySystem.Core.Services
 {
     public interface IAuthServices
     {
-        Task<AuthDto> RegisterAsync(RegisterCommand model);
+        //Task<AuthDto> RegisterAsync(RegisterCommand model);
 
     }
 }

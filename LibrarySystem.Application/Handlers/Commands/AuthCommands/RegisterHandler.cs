@@ -10,18 +10,19 @@ using System.Threading.Tasks;
 
 namespace LibrarySystem.Application.Handlers.Commands.AuthCommands
 {
-    public class RegisterHandler : IRequestHandler<RegisterCommand, AuthDto>
+    public class RegisterHandler 
     {
-        public readonly IAuthServices _authservice;
-        public RegisterHandler(IAuthServices authservice)
-        {
-            _authservice = authservice;
-        }
+        /* :IRequestHandler<RegisterCommand, AuthDto>
+          public readonly IAuthServices _authservice;
+         public RegisterHandler(IAuthServices authservice)
+         {
+             _authservice = authservice;
+         }
 
-        public async Task<AuthDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
-        {
-            var result = await _authservice.RegisterAsync(request);
-            return result;
-        }
+         public async Task<AuthDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
+         {
+             var result = await _authservice.RegisterAsync(request);
+             return result;
+         }*/
     }
 }

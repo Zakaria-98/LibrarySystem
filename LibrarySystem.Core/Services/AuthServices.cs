@@ -14,7 +14,7 @@ namespace LibrarySystem.Core.Services
 {
     public class AuthServices
     {
-        private readonly UserManager<User> _userManager;
+        /* private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _rolemanager;
 
         private readonly JWT _jwt;
@@ -99,6 +99,7 @@ namespace LibrarySystem.Core.Services
 
             return jwtSecurityToken;
         }
+        */
 
 
     }

@@ -10,6 +10,7 @@ using LibrarySystem.Core.Models;
 using System.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using LibrarySystem.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,8 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(ConnectionString));
+
+//builder.Services.AddScoped<IAuthServices, AuthServices>();
 
 builder.Services.AddAuthentication(options =>
 {
