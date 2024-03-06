@@ -1,9 +1,12 @@
 ﻿using LibrarySystem.Configuration;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using LibrarySystem.Models;
+using LibrarySystem.Core.Models;
 
 namespace LibrarySystem.Models
 {
-    public class ApplicationDbContext:DbContext
+    public class ApplicationDbContext: IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -13,6 +16,8 @@ namespace LibrarySystem.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
 
             new BookConfig().Configure(modelBuilder.Entity<Book>());
             new CategoryConfig().Configure(modelBuilder.Entity<Category>());
@@ -69,6 +74,7 @@ namespace LibrarySystem.Models
        public DbSet<Item> Items { get; set; }
 
         public DbSet<Restoration> Restorations { get; set; }
+
 
     }
 }
