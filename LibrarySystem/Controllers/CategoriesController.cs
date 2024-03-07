@@ -4,11 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using MediatR;
 using LibrarySystem.Queries.CategoryQueries;
 using LibrarySystem.Commands.CategoryCommands;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibrarySystem.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
